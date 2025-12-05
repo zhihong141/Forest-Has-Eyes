@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Forest of Eyes - Nightmare Slider</title>
+  <title>Forest of Eyes - Nightmare Slider (Mobile Optimised)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -30,6 +30,15 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    /* Respect system "reduce motion" if set */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
 
     body {
@@ -65,7 +74,7 @@
       filter: brightness(0.38) contrast(1.4) saturate(0.8);
     }
 
-    /* Tunnel focus overlay – dark edges */
+    /* Tunnel focus overlay */
     .tunnel-focus {
       position: fixed;
       inset: 0;
@@ -84,7 +93,6 @@
       opacity: 1;
     }
 
-    /* Scare level tunnel tightens + darker edges */
     body.power-off.scare-1 .tunnel-focus {
       background:
         radial-gradient(circle at center,
@@ -126,7 +134,7 @@
       transition: transform 0.15s ease;
     }
 
-    /* Subtle shake – stronger at higher scare levels */
+    /* Subtle shake – desktop only */
     @keyframes scareShakeSoft {
       0%   { transform: translate3d(0, 0, 0); }
       25%  { transform: translate3d(1px, -1px, 0); }
@@ -155,6 +163,15 @@
       animation: scareShakeHard 0.22s infinite;
     }
 
+    /* Disable shake on small screens (to reduce lag) */
+    @media (max-width: 600px) {
+      body.power-off.scare-1 .forest-container-inner,
+      body.power-off.scare-2 .forest-container-inner,
+      body.power-off.scare-3 .forest-container-inner {
+        animation: none;
+      }
+    }
+
     .fog-layer,
     .eyes-layer,
     .fireflies-layer {
@@ -170,7 +187,6 @@
       opacity: 1;
     }
 
-    /* Fog 1: back */
     .fog-back {
       z-index: 1;
       background-image:
@@ -182,7 +198,6 @@
     }
     .forest-container.show .fog-back { opacity: 0.7; }
 
-    /* Fog 2: mid */
     .fog-mid {
       z-index: 3;
       background-image:
@@ -194,7 +209,6 @@
     }
     .forest-container.show .fog-mid { opacity: 0.6; }
 
-    /* Fog 3: front */
     .fog-front {
       z-index: 5;
       background-image:
@@ -206,7 +220,6 @@
     }
     .forest-container.show .fog-front { opacity: 0.5; }
 
-    /* Thicker fog in scare levels */
     body.power-off.scare-1 .forest-container.show .fog-mid {
       opacity: 0.8;
     }
@@ -234,7 +247,6 @@
       100% { background-position: 0 0, 0 0; }
     }
 
-    /* Fog pulse */
     @keyframes fogPulse {
       0%   { transform: scale(1);   opacity: 1; }
       50%  { transform: scale(1.03); opacity: 1.1; }
@@ -245,7 +257,6 @@
       animation: fogPulse 0.7s ease-in-out 2;
     }
 
-    /* Eyes layers */
     .eyes-back { z-index: 2; }
     .eyes-front { z-index: 4; }
     .big-eye-layer { z-index: 7; }
@@ -329,7 +340,6 @@
       opacity: 0.95;
     }
 
-    /* Normal glow when dark */
     body.power-off .forest-container.show .forest-eye-inner {
       background: rgba(15, 23, 42, 0.8);
       box-shadow:
@@ -338,7 +348,6 @@
         0 0 72px rgba(22, 163, 74, 0.9);
     }
 
-    /* Extra glow per scare level */
     body.power-off.scare-1 .forest-container.show .forest-eye-inner {
       box-shadow:
         0 0 18px rgba(74, 222, 128, 1),
@@ -360,7 +369,26 @@
         0 0 180px rgba(22, 163, 74, 1);
     }
 
-    /* Rare eyes: blue-ish glow */
+    /* Slightly cheaper glow on small screens */
+    @media (max-width: 600px) {
+      body.power-off .forest-container.show .forest-eye-inner {
+        box-shadow:
+          0 0 12px rgba(74, 222, 128, 0.9),
+          0 0 28px rgba(34, 197, 94, 0.95);
+      }
+
+      body.power-off.scare-2 .forest-container.show .forest-eye-inner,
+      body.power-off.scare-3 .forest-container.show .forest-eye-inner {
+        box-shadow:
+          0 0 18px rgba(74, 222, 128, 1),
+          0 0 40px rgba(34, 197, 94, 1);
+      }
+    }
+
+    .forest-eye-inner.rare-eye {
+      /* blue-ish glow */
+    }
+
     body.power-off .forest-container.show .forest-eye-inner.rare-eye {
       box-shadow:
         0 0 18px rgba(56, 189, 248, 1),
@@ -376,7 +404,6 @@
         0 0 160px rgba(37, 99, 235, 1);
     }
 
-    /* Sentinel: never blinks, extra glow */
     .forest-eye-inner.sentinel-eye {
       animation: none !important;
       transform: scaleY(1);
@@ -396,9 +423,8 @@
         0 0 210px rgba(30, 64, 175, 1);
     }
 
-    /* EVIL EYES – higher scare levels */
     .forest-eye-inner.evil-eye::before {
-      background: #fee2e2; /* reddish sclera */
+      background: #fee2e2;
     }
 
     .forest-eye-inner.evil-eye .forest-eye-pupil {
@@ -416,7 +442,6 @@
         0 0 150px rgba(127, 29, 29, 1);
     }
 
-    /* Big eye pupils slightly wider */
     .big-eye-layer .forest-eye-pupil {
       width: 8px;
       height: 14px;
@@ -433,7 +458,6 @@
       100% { transform: scaleY(1); }
     }
 
-    /* Fireflies */
     .fireflies-layer {
       z-index: 6;
       opacity: 0;
@@ -488,7 +512,6 @@
       }
     }
 
-    /* Steps / shadows at bottom */
     .footstep-layer {
       position: absolute;
       left: 0;
@@ -509,7 +532,6 @@
       opacity: 0.4;
     }
 
-    /* Falling leaves */
     .leaf-layer {
       position: absolute;
       inset: 0;
@@ -548,7 +570,6 @@
       }
     }
 
-    /* Scare overlay: red tint/nightmare vibe */
     .scare-overlay {
       position: absolute;
       inset: 0;
@@ -575,7 +596,6 @@
       opacity: 1;
     }
 
-    /* Silhouette */
     .silhouette-layer {
       position: absolute;
       inset: 0;
@@ -645,7 +665,6 @@
       right: 18%;
     }
 
-    /* Afterimage layer */
     .afterimage-layer {
       position: fixed;
       inset: 0;
@@ -670,7 +689,6 @@
       background: transparent;
     }
 
-    /* UI SCENE / LEVER */
     .scene {
       width: min(360px, 100vw - 2rem);
       background: radial-gradient(circle at top, #0b2534 0, var(--panel-on) 50%, #020617 100%);
@@ -922,7 +940,6 @@
       opacity: 0.75;
     }
 
-    /* Scare mode slider control */
     .scare-control {
       margin-top: 0.5rem;
       width: 100%;
@@ -1107,13 +1124,10 @@
   </style>
 </head>
 <body>
-  <!-- Tunnel focus overlay -->
   <div class="tunnel-focus"></div>
 
-  <!-- Afterimage eyes layer (for when lights come back on) -->
   <div id="afterimageLayer" class="afterimage-layer"></div>
 
-  <!-- FOREST CONTAINER -->
   <div id="forestContainer" class="forest-container">
     <div class="forest-container-inner">
       <div id="eyesBack" class="eyes-layer eyes-back"></div>
@@ -1130,12 +1144,10 @@
     </div>
   </div>
 
-  <!-- BIG GLITCH OVERLAY -->
   <div id="glitchOverlay" class="glitch-overlay">
     <span id="glitchOverlayText">STAY</span>
   </div>
 
-  <!-- UI CONTROLS -->
   <div class="scene" aria-live="polite">
     <div class="scene-header">
       <p>Fog is thin. Turn it <strong>off</strong> if you want to see who’s actually here.</p>
@@ -1173,7 +1185,6 @@
       </p>
       <p id="depthLine" class="depth-line">Depth: 0 blackouts</p>
 
-      <!-- Scare mode slider -->
       <div class="scare-control">
         <div class="scare-label-main">
           <span>SCARE MODE</span>
@@ -1233,6 +1244,8 @@
       const glitchOverlay = document.getElementById("glitchOverlay");
       const glitchOverlayText = document.getElementById("glitchOverlayText");
 
+      const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth <= 600;
+
       let isOn = true;
       let mischiefTimeout = null;
       let toastTimeout = null;
@@ -1246,21 +1259,17 @@
       let depth = 0;
 
       let lastToggleTime = 0;
-      const COOLDOWN = 450; // ms
+      const COOLDOWN = 450;
 
-      const BACK_EYES_COUNT = 50;
-      const FRONT_EYES_COUNT = 28;
+      const BACK_EYES_COUNT = isMobile ? 30 : 50;
+      const FRONT_EYES_COUNT = isMobile ? 16 : 28;
 
       let scareLevel = 0;
-
-      // Secret combo tracking (Nightmare mode)
       let secretStreak = 0;
       let lastOffTime = 0;
 
-      // Big glitch cadence: every 2–3 blackouts
       let nextBigGlitchIn = 2;
 
-      // Audio: shared context + ambient hum + rustle
       let audioCtx = null;
       let ambientOsc = null;
       let ambientGain = null;
@@ -1277,6 +1286,7 @@
       }
 
       function initAmbience() {
+        if (isMobile) return; // skip continuous drone on phone
         const ctx = getAudioCtx();
         if (!ctx || ambientOsc) return;
 
@@ -1285,16 +1295,15 @@
 
         ambientOsc.type = "sawtooth";
         ambientOsc.frequency.value = 45;
-
         ambientGain.gain.value = 0;
 
         ambientOsc.connect(ambientGain);
         ambientGain.connect(ctx.destination);
-
         ambientOsc.start();
       }
 
       function initWhispers() {
+        if (isMobile) return; // skip on phone to reduce load
         const ctx = getAudioCtx();
         if (!ctx || whisperSource) return;
 
@@ -1328,6 +1337,7 @@
       }
 
       function setAmbient(active) {
+        if (isMobile) return;
         const ctx = getAudioCtx();
         if (!ctx || !ambientGain) return;
         const now = ctx.currentTime;
@@ -1346,6 +1356,7 @@
       }
 
       function setWhispers(active) {
+        if (isMobile) return;
         const ctx = getAudioCtx();
         if (!ctx || !whisperGain) return;
         const now = ctx.currentTime;
@@ -1381,13 +1392,11 @@
         osc.stop(now + 0.15);
       }
 
-      /* --- Scare level class handling --- */
       function updateScareClasses() {
         body.classList.remove("scare-0", "scare-1", "scare-2", "scare-3");
         body.classList.add("scare-" + scareLevel);
       }
 
-      /* --- EYES GENERATION --- */
       function createEyes(container, count, isFront) {
         if (!container) return;
         const fragment = document.createDocumentFragment();
@@ -1399,7 +1408,6 @@
           let top, left;
 
           if (isFront) {
-            // Slow "approach" toward center as depth grows + scare level
             const depthFactor = Math.min(depth / 6, 1);
             let centerBias = scareLevel === 3 ? 0.7 : scareLevel === 2 ? 0.5 : 0.3;
 
@@ -1412,8 +1420,8 @@
               top = topCenter + (Math.random() * topRange - topRange / 2);
               left = leftCenter + (Math.random() * leftRange - leftRange / 2);
             } else if (Math.random() < centerBias) {
-              top = 40 + Math.random() * 30;   // 40–70%
-              left = 25 + Math.random() * 50;  // 25–75%
+              top = 40 + Math.random() * 30;
+              left = 25 + Math.random() * 50;
             } else {
               top = 10 + Math.random() * 80;
               left = 5 + Math.random() * 90;
@@ -1423,8 +1431,8 @@
             left = 3 + Math.random() * 94;
           }
 
-          const scaleBase = isFront ? 0.8 : 0.45;
-          const scaleVar = Math.random() * (isFront ? 0.4 : 0.35);
+          const scaleBase = isFront ? (isMobile ? 0.7 : 0.8) : 0.45;
+          const scaleVar = Math.random() * (isFront ? 0.35 : 0.35);
 
           pair.style.top = top + "%";
           pair.style.left = left + "%";
@@ -1449,26 +1457,22 @@
         container.appendChild(fragment);
       }
 
-      /* --- SPECIAL EYES: rare + sentinel + evil --- */
       function markSpecialEyes() {
         if (!eyesFront) return;
         const allInner = Array.from(eyesFront.querySelectorAll(".forest-eye-inner"));
         if (!allInner.length) return;
 
-        // Rare ones
         allInner.forEach(inner => {
           if (Math.random() < 0.1) {
             inner.classList.add("rare-eye");
           }
         });
 
-        // Sentinel – one per set
         const sentinel = allInner[Math.floor(Math.random() * allInner.length)];
         if (sentinel) {
           sentinel.classList.add("sentinel-eye");
         }
 
-        // Evil eyes (higher levels)
         if (scareLevel >= 2) {
           const evilChance = scareLevel === 2 ? 0.12 : 0.26;
           allInner.forEach(inner => {
@@ -1479,7 +1483,6 @@
         }
       }
 
-      /* --- CLICKABLE EYES / FLINCH --- */
       function makeEyesInteractive() {
         if (!eyesFront) return;
         eyesFront.querySelectorAll(".forest-eyes-pair").forEach(pair => {
@@ -1488,9 +1491,7 @@
             if (isOn || !body.classList.contains("power-off")) return;
             if (pair.classList.contains("flinch")) return;
 
-            // "Tik" sound for eye poke
             playSound(600, "square", 0.08);
-
             pair.classList.add("flinch");
             setTimeout(() => {
               const top = 20 + Math.random() * 60;
@@ -1503,7 +1504,6 @@
         });
       }
 
-      /* --- REGENERATE EYES (called every time we enter dark mode) --- */
       function regenerateEyes() {
         if (eyesBack) eyesBack.innerHTML = "";
         if (eyesFront) eyesFront.innerHTML = "";
@@ -1518,7 +1518,6 @@
         makeEyesInteractive();
       }
 
-      /* --- RARE HUGE EYE --- */
       function showBigEye() {
         if (!bigEyeLayer) return;
         bigEyeLayer.innerHTML = `
@@ -1543,7 +1542,6 @@
         }, 900);
       }
 
-      /* --- SILHOUETTE --- */
       function showSilhouette() {
         if (!silhouetteLayer) return;
         silhouetteLayer.innerHTML = `
@@ -1562,7 +1560,6 @@
         }, 1200);
       }
 
-      /* --- AFTERIMAGE EYES WHEN LIGHTS RETURN --- */
       function showAfterimage() {
         if (!afterimageLayer || !eyesFront) return;
         if (!eyesFront.children.length) return;
@@ -1579,7 +1576,6 @@
         }, 80);
       }
 
-      /* --- FIREFLIES --- */
       function createFireflies(count) {
         if (!firefliesContainer) return;
         const fragment = document.createDocumentFragment();
@@ -1595,7 +1591,6 @@
         firefliesContainer.appendChild(fragment);
       }
 
-      /* --- FOOTSTEPS --- */
       function createFootsteps(count) {
         if (!footstepLayer) return;
         const fragment = document.createDocumentFragment();
@@ -1610,7 +1605,6 @@
         footstepLayer.appendChild(fragment);
       }
 
-      /* --- LEAVES --- */
       function createLeaves(count) {
         if (!leafLayer) return;
         const fragment = document.createDocumentFragment();
@@ -1628,7 +1622,6 @@
         leafLayer.appendChild(fragment);
       }
 
-      /* --- HINT EVOLUTION + DEPTH LINE --- */
       function updateHint() {
         if (!hintEl) return;
         if (depth === 1) {
@@ -1649,7 +1642,6 @@
         depthLineEl.textContent = `Depth: ${depth} blackout${depth === 1 ? "" : "s"}`;
       }
 
-      /* --- STATUS GLITCH IN NIGHTMARE (small line) --- */
       function glitchStatus(intenseLevel) {
         if (!statusLabel || intenseLevel < 3) return;
         if (glitchTimeout) clearTimeout(glitchTimeout);
@@ -1671,7 +1663,6 @@
         }, 600);
       }
 
-      /* --- BIG CENTER GLITCH --- */
       function triggerBigGlitch() {
         if (!glitchOverlay || !glitchOverlayText) return;
         if (!body.classList.contains("power-off") || scareLevel < 3) return;
@@ -1697,11 +1688,10 @@
         nextBigGlitchIn--;
         if (nextBigGlitchIn <= 0) {
           triggerBigGlitch();
-          nextBigGlitchIn = 2 + Math.floor(Math.random() * 2); // 2 or 3
+          nextBigGlitchIn = 2 + Math.floor(Math.random() * 2);
         }
       }
 
-      /* --- CONTROL LOGIC --- */
       function setLeverState(on, silent = false) {
         const wasOff = !isOn;
         isOn = on;
@@ -1717,7 +1707,7 @@
         forestContainer.classList.toggle("show", !on);
 
         if (!silent) {
-          playSound(on ? 220 : 160, "square");
+          playSound(on ? 220 : 160, "square", isMobile ? 0.07 : 0.11);
         }
 
         if (on) {
@@ -1787,10 +1777,10 @@
         if (mischiefTimeout) clearTimeout(mischiefTimeout);
         if (bigEyeTimeout) clearTimeout(bigEyeTimeout);
 
-        let autoTime = 4800;
-        if (intenseLevel === 1) autoTime = 5200;
-        else if (intenseLevel === 2) autoTime = 5800;
-        else if (intenseLevel === 3) autoTime = 6800;
+        let autoTime = isMobile ? 4200 : 4800;
+        if (intenseLevel === 1) autoTime += 400;
+        else if (intenseLevel === 2) autoTime += 800;
+        else if (intenseLevel === 3) autoTime += 1400;
 
         const bigEyeTime = autoTime - 900;
 
@@ -1806,49 +1796,21 @@
           }, 1200 + Math.random() * 1500);
         }
 
-        // Small status-line glitch in Nightmare
         if (intenseLevel >= 3 && !isOn) {
           setTimeout(() => glitchStatus(intenseLevel), 600);
           setTimeout(() => glitchStatus(intenseLevel), 1800);
         }
 
         mischiefTimeout = setTimeout(() => {
-          playSound(100, "sawtooth");
+          playSound(100, "sawtooth", isMobile ? 0.07 : 0.11);
           setLeverState(true);
           showToast(randomMessage(isRare, intenseLevel));
         }, autoTime);
       }
 
-      /* --- INIT --- */
-      function updateScareClassesWrapper() {
-        body.classList.remove("scare-0", "scare-1", "scare-2", "scare-3");
-        body.classList.add("scare-" + scareLevel);
-      }
-
-      updateScareClassesWrapper();
-      regenerateEyes();
-      createFireflies(24);
-      createFootsteps(4);
-      createLeaves(8);
-      setLeverState(true, true);
-      updateDepthLine();
-
-      /* --- PARALLAX (pointer + gyro + eye tracking) --- */
-      const supportsDeviceOrientation = "DeviceOrientationEvent" in window;
-      let gyroActive = false;
-
-      function updateEyePupils(xNorm, yNorm) {
-        const pupils = document.querySelectorAll(".forest-eye-pupil");
-        const maxOffset = 3;
-        const offsetX = xNorm * maxOffset;
-        const offsetY = yNorm * maxOffset;
-        pupils.forEach(p => {
-          p.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
-        });
-      }
-
       function applyParallax(xNorm, yNorm) {
-        const strength = 40;
+        const baseStrength = isMobile ? 24 : 40;
+        const strength = baseStrength;
         const x = xNorm * strength;
         const y = yNorm * strength * 0.6;
 
@@ -1883,14 +1845,27 @@
         updateEyePupils(xNorm, yNorm);
       }
 
+      function updateEyePupils(xNorm, yNorm) {
+        const pupils = document.querySelectorAll(".forest-eye-pupil");
+        const maxOffset = isMobile ? 2.2 : 3;
+        const offsetX = xNorm * maxOffset;
+        const offsetY = yNorm * maxOffset;
+        pupils.forEach(p => {
+          p.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
+        });
+      }
+
+      let gyroActive = false;
+      const supportsDeviceOrientation = "DeviceOrientationEvent" in window;
+
       document.addEventListener("pointermove", (evt) => {
-        if (gyroActive) return;
+        if (gyroActive && isMobile) return;
         const xNorm = (evt.clientX / window.innerWidth) * 2 - 1;
         const yNorm = (evt.clientY / window.innerHeight) * 2 - 1;
         applyParallax(xNorm, yNorm);
       });
 
-      if (supportsDeviceOrientation) {
+      if (supportsDeviceOrientation && isMobile) {
         window.addEventListener("deviceorientation", (event) => {
           if (event.beta == null || event.gamma == null) return;
           gyroActive = true;
@@ -1908,17 +1883,15 @@
         });
       }
 
-      /* --- SCARE LEVEL SLIDER --- */
       scareSlider.addEventListener("input", () => {
         scareLevel = parseInt(scareSlider.value, 10) || 0;
-        updateScareClassesWrapper();
+        updateScareClasses();
         if (body.classList.contains("power-off")) {
           setAmbient(true);
           setWhispers(true);
         }
       });
 
-      /* --- LEVER INTERACTION --- */
       leverButton.addEventListener("click", () => {
         const now = (window.performance && performance.now) ? performance.now() : Date.now();
         if (now - lastToggleTime < COOLDOWN) {
@@ -1954,8 +1927,6 @@
           const isRare = Math.random() < rareChance;
 
           setLeverState(false);
-
-          // Big glitch every 2–3 blackouts in Nightmare
           maybeTriggerBigGlitchOnBlackout();
 
           if (intenseLevel > 0) {
@@ -1968,6 +1939,14 @@
           if (bigEyeTimeout) clearTimeout(bigEyeTimeout);
         }
       });
+
+      updateScareClasses();
+      regenerateEyes();
+      createFireflies(isMobile ? 12 : 24);
+      createFootsteps(isMobile ? 3 : 4);
+      createLeaves(isMobile ? 4 : 8);
+      setLeverState(true, true);
+      updateDepthLine();
     })();
   </script>
 </body>
