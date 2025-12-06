@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eyes See You - Optimized Core</title>
+  <title>Eyes See You - Final Fix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nosifer&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -23,7 +22,6 @@
       --term-green: #22c55e;
       --term-red: #ef4444;
 
-      /* CSS Variables for Performance (Updated by JS) */
       --look-x: 0px;
       --look-y: 0px;
     }
@@ -45,7 +43,6 @@
       touch-action: none; user-select: none;
     }
 
-    /* Vignette - Optimized with GPU hint */
     body::before {
       content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 8000;
       background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 90%);
@@ -61,7 +58,6 @@
     body.corrupted-1 { background-image: linear-gradient(to bottom, #1a1010 0%, #0d0505 45%, #000000 100%); }
     body.corrupted-2 { background-image: linear-gradient(to bottom, #2b0a0a 0%, #1a0505 45%, #000000 100%); }
 
-    /* CRT Overlay - Simplified for Mobile Performance */
     .crt-overlay {
       position: fixed; inset: 0; pointer-events: none; z-index: 9998;
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
@@ -70,35 +66,37 @@
       mix-blend-mode: multiply; opacity: 1;
     }
 
-    /* Layers */
     .shaker-wrapper {
       position: fixed; inset: -10%; width: 120%; height: 120%;
-      pointer-events: none; z-index: 0; will-change: transform;
+      pointer-events: none; 
+      z-index: 20; 
+      will-change: transform;
     }
+
     .parallax-layer { 
       position: absolute; inset: 0; width: 100%; height: 100%; 
       will-change: transform; transition: transform 0.1s ease-out;
     }
     .parallax-layer.zooming { transition: transform 5s ease-in; transform: scale(1.4) !important; }
 
-    .eyes-layer { position: absolute; inset: 0; opacity: 0; transition: opacity 0.2s; }
-    /* Z-INDEX TRICK: When shown, eyes are above EVERYTHING (z-index 50) except overlays */
-    .shaker-wrapper.show .eyes-layer { opacity: 1; z-index: 50; pointer-events: auto; }
+    .eyes-layer { 
+      position: absolute; inset: 0; opacity: 0; 
+      transition: opacity 1.5s ease-in-out; 
+      pointer-events: none; 
+    }
+    .shaker-wrapper.show .eyes-layer { opacity: 1; }
 
-    /* Eyes */
     .forest-eyes-pair {
       position: absolute; display: flex; gap: 12px; align-items: center; justify-content: center;
       opacity: 0; animation: floatEyes 4s ease-in-out infinite;
       transition: opacity 0.3s;
-      pointer-events: auto; /* Crucial for clicking */
-      padding: 15px; /* Larger hit area */
+      pointer-events: auto; padding: 40px; margin: -40px; z-index: 100;
     }
     .shaker-wrapper.show .forest-eyes-pair { opacity: 1; transition: opacity 0.5s ease 0.2s; }
 
     .forest-eye {
       position: relative; width: 24px; height: 24px; border-radius: 50%;
       background: radial-gradient(circle at 50% 50%, #fbbf24 0%, #b45309 60%, #78350f 100%);
-      /* Reduced shadow radius for performance */
       box-shadow: 0 0 5px rgba(251, 191, 36, 0.6);
       overflow: hidden; animation: blinkEye 4s infinite;
     }
@@ -110,7 +108,6 @@
     .forest-eye-pupil {
       position: absolute; width: 6px; height: 16px; background: #000; border-radius: 50%;
       left: 50%; top: 50%;
-      /* GPU ACCELERATED MOVEMENT using CSS Variables */
       transform: translate(calc(-50% + var(--look-x)), calc(-50% + var(--look-y)));
       will-change: transform;
     }
@@ -123,22 +120,16 @@
     @keyframes floatEyes { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
     @keyframes blinkEye { 0%, 96%, 100% { transform: scaleY(1); } 98% { transform: scaleY(0.1); } }
 
-    /* UI Panel */
     .scene {
       width: min(340px, 90vw);
       background: var(--ui-bg); border: 4px solid var(--ui-border);
       box-shadow: 12px 12px 0 rgba(0,0,0,0.8);
       border-radius: 4px; padding: 1.5rem 1.2rem;
-      position: relative; z-index: 10;
-      transition: opacity 0.5s ease, filter 0.5s ease;
+      position: relative; z-index: 60;
+      transition: opacity 1.2s ease, filter 0.5s ease;
     }
-    
-    .scene.power-off { 
-      opacity: 0; filter: grayscale(1); pointer-events: none; 
-    }
-    .scene.power-off.woken { 
-      opacity: 1; filter: grayscale(0); pointer-events: auto; 
-    }
+    .scene.power-off { opacity: 0; filter: grayscale(1); pointer-events: none; }
+    .scene.power-off.woken { opacity: 1; filter: grayscale(0); pointer-events: auto; }
 
     .scene-header { 
       text-align: center; margin-bottom: 1.5rem; color: #78716c; 
@@ -153,7 +144,6 @@
       transform: rotate(45deg); cursor: pointer;
     }
 
-    /* Lever */
     .lever-area {
       position: relative; background: #292524; border: 3px solid #000; border-radius: 6px;
       padding: 1.5rem 0; display: flex; flex-direction: column; align-items: center; gap: 1rem;
@@ -187,7 +177,6 @@
     }
     .lever-button.on .lever-knob { background-color: #22c55e; }
 
-    /* Status */
     .status-display { 
       font-size: 1rem; letter-spacing: 2px; color: var(--term-green);
       background: #000; padding: 8px 12px; border: 2px solid #333; 
@@ -204,13 +193,13 @@
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none; width: 24px; height: 24px; background: #d6d3d1; 
       border: 3px solid #000; box-shadow: 2px 2px 0 #000;
+      cursor: grab;
     }
     .reset-bar {
       width: 0%; height: 4px; background: #ef4444; margin-top: 8px; 
       transition: width 0.1s linear;
     }
 
-    /* Popups & Overlays */
     .fake-notif {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
       width: 280px; background: rgba(240, 240, 240, 0.95);
@@ -237,7 +226,6 @@
     .blink-overlay { position: fixed; inset: 0; background: #000; z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.05s; }
     .blink-overlay.active { opacity: 1; }
 
-    /* Endgame */
     .endgame-screen {
       position: fixed; inset: 0; background: #000; z-index: 9997;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -251,7 +239,6 @@
     .endgame-screen.show .endgame-text { opacity: 1; transform: scale(1); }
     .extreme-eye-pair { display: flex; gap: 20px; transform: scale(4); }
 
-    /* Splash */
     .splash-screen {
       position: fixed; inset: 0; background: #000; z-index: 10002;
       display: flex; align-items: center; justify-content: center;
@@ -280,9 +267,9 @@
       <div class="splash-icons">
         <div class="icon-group"><span>🎧</span>Headphones</div>
         <div class="icon-group"><span>📱</span>Vertical</div>
-        <div class="icon-group"><span>🎤</span>Mic On</div>
+        <div class="icon-group"><span>👆</span>Tap Screen</div>
       </div>
-      <button id="startBtn" class="start-btn">INITIALIZE</button>
+      <button id="startBtn" class="start-btn">ENTER THE DARK</button>
     </div>
   </div>
   
@@ -339,10 +326,8 @@
 
   <script>
     (function() {
-      // Configuration
       const isMobile = window.innerWidth <= 600;
       const config = { backEyes: isMobile ? 12 : 25, frontEyes: isMobile ? 8 : 16 };
-      
       const glitchWords = ["SEEN", "RUN", "HIDE", "FOUND", "BEHIND", "CLOSE", "NO ESCAPE", "DON'T LOOK", "IT SEES"];
       const fakePopups = [
         { title: "Low Battery", text: "1% remaining", btn: "Close" },
@@ -375,6 +360,7 @@
       let wakeTimeout = null;
       let textScrambleInterval = null;
       let scareTimeouts = [];
+      let cachedPupils = [];
 
       const els = {
         body: document.body,
@@ -403,15 +389,12 @@
         startBtn: document.getElementById('startBtn')
       };
 
-      // --- TEXT SCRAMBLER ---
       function scrambleText(element, finalWord, isAlert) {
         if(textScrambleInterval) clearInterval(textScrambleInterval);
         if(isAlert) els.statusText.classList.add('alert');
         else els.statusText.classList.remove('alert');
-        
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$";
         let iterations = 0;
-        
         textScrambleInterval = setInterval(() => {
           element.innerText = finalWord.split("").map((l, i) => {
               if(i < iterations) return finalWord[i];
@@ -422,7 +405,6 @@
         }, 30);
       }
 
-      // --- AUDIO ---
       els.startBtn.addEventListener('click', () => {
         if (navigator.vibrate) navigator.vibrate(200);
         initAudio();
@@ -444,8 +426,6 @@
       async function initAudio() {
         if(audioCtx) return;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // Breath
         panner = audioCtx.createStereoPanner();
         const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
@@ -460,14 +440,12 @@
         breathingOsc.connect(filter); filter.connect(breathingGain); breathingGain.connect(panner); panner.connect(audioCtx.destination);
         breathingOsc.start();
         
-        // Tension
         tensionOsc = audioCtx.createOscillator();
         tensionOsc.type = 'triangle'; tensionOsc.frequency.value = 100;
         tensionGain = audioCtx.createGain(); tensionGain.gain.value = 0;
         tensionOsc.connect(tensionGain); tensionGain.connect(audioCtx.destination);
         tensionOsc.start();
 
-        // Mic
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           const source = audioCtx.createMediaStreamSource(stream);
@@ -489,7 +467,6 @@
         osc.start(); osc.stop(audioCtx.currentTime + dur + 0.05);
       }
 
-      // --- CORE LOGIC ---
       function createEyes(container, count, isFront) {
         let html = '';
         for(let i=0; i<count; i++) {
@@ -498,8 +475,7 @@
           const scale = isFront ? (0.7 + Math.random() * 0.3) : (0.4 + Math.random() * 0.2);
           const isEvil = (state.scareLevel >= 2 && Math.random() < 0.4) || (state.scareLevel===3) ? 'evil-eye' : '';
           const delay = Math.random() * 4;
-          
-          html += `<div class="forest-eyes-pair" data-action="touch-scare" style="top:${top}%; left:${left}%; transform:scale(${scale});">
+          html += `<div class="forest-eyes-pair" style="top:${top}%; left:${left}%; transform:scale(${scale});">
               <div class="forest-eye ${isEvil}" style="animation-delay: ${delay}s"><div class="forest-eye-pupil"></div></div>
               <div class="forest-eye ${isEvil}" style="animation-delay: ${delay + 0.1}s"><div class="forest-eye-pupil"></div></div></div>`;
         }
@@ -509,14 +485,13 @@
       function regenEyes() {
         createEyes(els.eyesBack, config.backEyes, false);
         createEyes(els.eyesFront, config.frontEyes, true);
+        cachedPupils = Array.from(document.querySelectorAll('.forest-eye-pupil'));
         
-        // Add click listener to eyes that STOPS propagation (prevents menu wake)
         document.querySelectorAll('.forest-eyes-pair').forEach(el => {
           el.addEventListener('click', (e) => {
-            e.stopPropagation(); // CRITICAL: Don't wake menu
+            e.stopPropagation(); 
             if(!state.on && !state.isDead) forceReset("TOUCH");
           });
-          // Also handle touchstart for faster response
           el.addEventListener('touchstart', (e) => {
              e.stopPropagation();
              if(!state.on && !state.isDead) forceReset("TOUCH");
@@ -531,15 +506,10 @@
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         els.glitch.classList.add('active');
         applyCorruption();
-        
         if(resetTimeout) clearTimeout(resetTimeout);
         if(resetAnimation) cancelAnimationFrame(resetAnimation);
-        
         setTimeout(() => {
-          if(!state.isDead) {
-            togglePower();
-            els.glitch.classList.remove('active');
-          }
+          if(!state.isDead) { togglePower(); els.glitch.classList.remove('active'); }
         }, 300);
       }
       
@@ -547,19 +517,15 @@
         if (state.isDead) return;
         state.corruption++;
         const c = Math.min(state.corruption, 3);
-        
         els.leverArea.classList.remove('corrupt-1', 'corrupt-2', 'corrupt-3');
         if (state.corruption > 2 && state.corruption < 25) els.leverArea.classList.add('corrupt-' + c);
-        
         els.body.classList.remove('corrupted-1', 'corrupted-2');
         if (state.corruption > 5) els.body.classList.add('corrupted-1');
         if (state.corruption > 10) els.body.classList.add('corrupted-2');
-        
         if (state.corruption > 4) {
              const statusWords = ["UNSTABLE", "FAILING", "CRITICAL", "LOOK OUT"];
              scrambleText(els.statusStrong, statusWords[Math.floor(Math.random() * statusWords.length)], true);
         }
-        
         if(state.corruption >= 25) triggerEndgame();
       }
       
@@ -572,10 +538,7 @@
         if (navigator.vibrate) navigator.vibrate(500);
         if(breathingGain) breathingGain.gain.value = 0;
         if(tensionGain) tensionGain.gain.value = 0;
-        setTimeout(() => {
-           els.endgameScreen.classList.add('show');
-           playSound(50, 'sine', 3.0, 0.3);
-        }, 1500);
+        setTimeout(() => { els.endgameScreen.classList.add('show'); playSound(50, 'sine', 3.0, 0.3); }, 1500);
       }
 
       function togglePower(e) {
@@ -594,7 +557,6 @@
         els.scene.classList.toggle('power-off', !state.on);
         
         if(!state.on) {
-           // On turn OFF: Wait 1.5s then hide menu (add wake listener)
            els.scene.classList.add('woken');
            if(wakeTimeout) clearTimeout(wakeTimeout);
            wakeTimeout = setTimeout(() => els.scene.classList.remove('woken'), 1500);
@@ -625,11 +587,8 @@
         }
       }
       
-      // Tap Background to Wake Menu
       document.body.addEventListener('click', (e) => {
-        // If clicking scene or eyes, do nothing here
         if(e.target.closest('.scene') || e.target.closest('.forest-eyes-pair')) return;
-        
         if(!state.on && !state.isDead) {
             if(els.scene.classList.contains('woken')) {
                 els.scene.classList.remove('woken');
@@ -732,24 +691,37 @@
         forceReset("GLITCH");
       });
 
-      // --- OPTIMIZED PARALLAX LOOP (CSS VARS) ---
       function handleOrientation(e) {
-        if(e.gamma == null) return;
+        // Safety check for null gamma/beta on some devices/permissions
+        if (e.gamma === null || e.beta === null) return;
+
         // Upright calibration: subtract 60 from beta
-        let x = e.gamma / 25;
-        let y = (e.beta - 60) / 25;
+        let x = (e.gamma || 0) / 25;
+        let y = ((e.beta || 0) - 60) / 25;
+
         x = Math.max(-1.5, Math.min(1.5, x));
         y = Math.max(-1.5, Math.min(1.5, y));
         
-        state.targetX = x; state.targetY = y;
+        state.targetX = x; 
+        state.targetY = y;
         state.lastMoveTime = Date.now(); 
         els.parallax.classList.remove('zooming');
       }
       
+      // Mouse move fallback
       window.addEventListener('mousemove', e => {
         state.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
         state.targetY = (e.clientY / window.innerHeight - 0.5) * 2;
       });
+      
+      // Touch drag fallback (for non-gyro devices)
+      window.addEventListener('touchmove', e => {
+        if (e.touches.length > 0) {
+            const t = e.touches[0];
+            state.targetX = (t.clientX / window.innerWidth - 0.5) * 2;
+            state.targetY = (t.clientY / window.innerHeight - 0.5) * 2;
+        }
+      }, {passive: true});
 
       function loop() {
         // Smooth Lerp
@@ -760,25 +732,20 @@
         els.parallax.style.transform = `translate3d(${state.currentX * 20}px, ${state.currentY * 12}px, 0)`;
         
         if(!state.on) {
-           // Audio Panning
            if(panner) panner.pan.value = Math.max(-1, Math.min(1, state.currentX));
-           // Breath Rhythm
            const breath = (Math.sin(Date.now() / 650) + 1) * 0.5;
            if(breathingGain) breathingGain.gain.setValueAtTime(0.2 * breath, audioCtx.currentTime);
 
-           // Weeping Angel
            if(Date.now() - state.lastMoveTime > 1500) els.parallax.classList.add('zooming');
 
-           // Mic
            if(state.micEnabled && micAnalyser && micDataArray) {
              micAnalyser.getByteFrequencyData(micDataArray);
              let sum = 0; for(let i=0; i<micDataArray.length; i++) sum+=micDataArray[i];
              if((sum / micDataArray.length) > 40) forceReset("NOISE");
            }
 
-           // --- HIGH PERFORMANCE PUPIL UPDATE ---
-           // Update CSS Variables instead of loop dom access
-           const xPx = state.currentX * 6; // range approx -9 to 9
+           // High Performance CSS Variable Update
+           const xPx = state.currentX * 6; 
            const yPx = state.currentY * 6;
            document.documentElement.style.setProperty('--look-x', xPx + 'px');
            document.documentElement.style.setProperty('--look-y', yPx + 'px');
@@ -800,5 +767,4 @@
   </script>
 </body>
 </html>
-
 
