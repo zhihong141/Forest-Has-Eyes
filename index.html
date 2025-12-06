@@ -2,25 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Forest of Eyes - Nightmare Slider (Mobile Optimised)</title>
+  <title>Forest of Eyes – Gyro Dense</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      --bg-on: radial-gradient(circle at top, #0f2924 0, #031411 40%, #000000 100%);
+      --bg-on: radial-gradient(circle at top, #0b332a 0, #041813 40%, #000000 100%);
       --bg-off: #000000;
 
-      --panel-on: rgba(6, 28, 37, 0.95);
-      --panel-off: rgba(0, 0, 0, 0.8);
+      --panel-on: rgba(7, 26, 32, 0.96);
+      --panel-off: rgba(0, 0, 0, 0.85);
 
       --accent: #bef264;
-      --lever-base: #1e293b;
-      --lever-stick: #cbd5f5;
-      --lever-knob: #fb7185;
-      --lever-knob-on: #4ade80;
-
-      --text-main: #f9fafb;
-      --text-soft: #9ca3af;
       --danger: #f97373;
+
+      --lever-base: #1f2937;
+      --lever-stick: #d1d5db;
+      --lever-knob-on: #4ade80;
+      --lever-knob-off: #fb7185;
+
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
 
       --eye-sclera: #ecfdf5;
       --eye-pupil: #020617;
@@ -32,7 +33,7 @@
       padding: 0;
     }
 
-    /* Respect system "reduce motion" if set */
+    /* Respect "reduce motion" */
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0.01ms !important;
@@ -47,684 +48,190 @@
       display: flex;
       align-items: flex-start;
       justify-content: center;
+      padding-top: 80px;
       background: var(--bg-on);
       color: var(--text-main);
-      padding-top: 80px;
       overflow: hidden;
       transition:
-        background 0.8s ease,
-        filter 0.8s ease;
+        background 0.7s ease,
+        filter 0.7s ease;
     }
 
     body.power-off {
       background: var(--bg-off);
-      filter: brightness(0.65) contrast(1.08);
+      filter: brightness(0.55) contrast(1.1);
     }
 
-    /* Scare levels: 0–3 */
     body.power-off.scare-1 {
-      filter: brightness(0.58) contrast(1.15) saturate(0.9);
+      filter: brightness(0.5) contrast(1.2);
     }
 
     body.power-off.scare-2 {
-      filter: brightness(0.5) contrast(1.25) saturate(0.85);
+      filter: brightness(0.45) contrast(1.3);
     }
 
     body.power-off.scare-3 {
-      filter: brightness(0.38) contrast(1.4) saturate(0.8);
+      filter: brightness(0.38) contrast(1.4);
     }
 
-    /* Tunnel focus overlay */
-    .tunnel-focus {
+    /* FOG – cheap gradient, no animation, gyro transforms */
+    .fog-layer {
       position: fixed;
       inset: 0;
-      pointer-events: none;
-      z-index: 6;
-      background:
-        radial-gradient(circle at center,
-          transparent 0,
-          transparent 45%,
-          rgba(0, 0, 0, 0.75) 100%);
-      opacity: 0;
-      transition: opacity 0.8s ease, background 0.8s ease;
-    }
-
-    body.power-off .tunnel-focus {
-      opacity: 1;
-    }
-
-    body.power-off.scare-1 .tunnel-focus {
-      background:
-        radial-gradient(circle at center,
-          transparent 0,
-          transparent 40%,
-          rgba(0, 0, 0, 0.85) 100%);
-    }
-
-    body.power-off.scare-2 .tunnel-focus {
-      background:
-        radial-gradient(circle at center,
-          transparent 0,
-          transparent 36%,
-          rgba(0, 0, 0, 0.93) 100%);
-    }
-
-    body.power-off.scare-3 .tunnel-focus {
-      background:
-        radial-gradient(circle at center,
-          transparent 0,
-          transparent 32%,
-          rgba(0, 0, 0, 0.98) 100%);
-    }
-
-    /* Forest container */
-    .forest-container {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
       pointer-events: none;
       z-index: 0;
+      opacity: 0;
+      transition: opacity 0.7s ease;
+      background:
+        radial-gradient(circle at 50% 60%, rgba(15, 23, 42, 0.85) 0, transparent 55%),
+        radial-gradient(circle at 20% 90%, rgba(6, 95, 70, 0.25) 0, transparent 45%),
+        radial-gradient(circle at 80% 10%, rgba(22, 163, 74, 0.18) 0, transparent 45%);
+      will-change: transform;
     }
 
-    .forest-container-inner {
-      position: absolute;
-      inset: -30%;
-      width: 160%;
-      height: 160%;
-      transition: transform 0.15s ease;
-    }
+    body.power-off .fog-layer { opacity: 0.55; }
+    body.power-off.scare-1 .fog-layer { opacity: 0.68; }
+    body.power-off.scare-2 .fog-layer { opacity: 0.8; }
+    body.power-off.scare-3 .fog-layer { opacity: 0.92; }
 
-    /* Subtle shake – desktop only */
-    @keyframes scareShakeSoft {
-      0%   { transform: translate3d(0, 0, 0); }
-      25%  { transform: translate3d(1px, -1px, 0); }
-      50%  { transform: translate3d(-1px, 1px, 0); }
-      75%  { transform: translate3d(0.5px, 0.5px, 0); }
-      100% { transform: translate3d(0, 0, 0); }
-    }
-
-    @keyframes scareShakeHard {
-      0%   { transform: translate3d(0, 0, 0); }
-      25%  { transform: translate3d(2px, -2px, 0); }
-      50%  { transform: translate3d(-2px, 2px, 0); }
-      75%  { transform: translate3d(1.5px, 1.5px, 0); }
-      100% { transform: translate3d(0, 0, 0); }
-    }
-
-    body.power-off.scare-1 .forest-container-inner {
-      animation: scareShakeSoft 0.3s infinite;
-    }
-
-    body.power-off.scare-2 .forest-container-inner {
-      animation: scareShakeSoft 0.26s infinite;
-    }
-
-    body.power-off.scare-3 .forest-container-inner {
-      animation: scareShakeHard 0.22s infinite;
-    }
-
-    /* Disable shake on small screens (to reduce lag) */
-    @media (max-width: 600px) {
-      body.power-off.scare-1 .forest-container-inner,
-      body.power-off.scare-2 .forest-container-inner,
-      body.power-off.scare-3 .forest-container-inner {
-        animation: none;
-      }
-    }
-
-    .fog-layer,
-    .eyes-layer,
-    .fireflies-layer {
-      position: absolute;
+    /* EYES FIELD */
+    .eyes-layer {
+      position: fixed;
       inset: 0;
-      opacity: 0;
-      transition: opacity 1.2s ease;
-    }
-
-    .forest-container.show .fog-layer,
-    .forest-container.show .eyes-layer,
-    .forest-container.show .fireflies-layer {
-      opacity: 1;
-    }
-
-    .fog-back {
       z-index: 1;
-      background-image:
-        radial-gradient(circle at 50% 50%, rgba(20, 50, 40, 0.25) 0%, transparent 40%),
-        radial-gradient(circle at 20% 80%, rgba(10, 40, 30, 0.25) 0%, transparent 30%);
-      background-size: 40% 40%;
-      animation: fogDrift 60s linear infinite;
+      pointer-events: none;
       opacity: 0;
-    }
-    .forest-container.show .fog-back { opacity: 0.7; }
-
-    .fog-mid {
-      z-index: 3;
-      background-image:
-        radial-gradient(circle at 70% 20%, rgba(34, 197, 94, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 30% 60%, rgba(6, 78, 59, 0.25) 0%, transparent 45%);
-      background-size: 60% 60%;
-      animation: fogDrift 40s linear infinite reverse;
-      opacity: 0;
-    }
-    .forest-container.show .fog-mid { opacity: 0.6; }
-
-    .fog-front {
-      z-index: 5;
-      background-image:
-        radial-gradient(circle at 10% 10%, rgba(187, 247, 208, 0.12) 0%, transparent 30%),
-        radial-gradient(circle at 90% 90%, rgba(187, 247, 208, 0.07) 0%, transparent 40%);
-      background-size: 70% 70%;
-      animation: fogDrift 25s linear infinite;
-      opacity: 0;
-    }
-    .forest-container.show .fog-front { opacity: 0.5; }
-
-    body.power-off.scare-1 .forest-container.show .fog-mid {
-      opacity: 0.8;
-    }
-    body.power-off.scare-1 .forest-container.show .fog-front {
-      opacity: 0.65;
+      transition: opacity 0.5s ease;
+      will-change: transform;
     }
 
-    body.power-off.scare-2 .forest-container.show .fog-mid {
-      opacity: 0.9;
-    }
-    body.power-off.scare-2 .forest-container.show .fog-front {
-      opacity: 0.78;
-    }
-
-    body.power-off.scare-3 .forest-container.show .fog-mid {
+    body.power-off .eyes-layer {
       opacity: 1;
     }
-    body.power-off.scare-3 .forest-container.show .fog-front {
-      opacity: 0.9;
+
+    /* Animations */
+    @keyframes eyeFloat {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-4px); }
     }
 
-    @keyframes fogDrift {
-      0% { background-position: 0 0, 0 0; }
-      50% { background-position: 40px -20px, -30px 20px; }
-      100% { background-position: 0 0, 0 0; }
+    @keyframes eyeBlink {
+      0%, 88% { transform: scaleY(1); }
+      92%     { transform: scaleY(0.2); }
+      96%     { transform: scaleY(1); }
+      100%    { transform: scaleY(1); }
     }
 
-    @keyframes fogPulse {
-      0%   { transform: scale(1);   opacity: 1; }
-      50%  { transform: scale(1.03); opacity: 1.1; }
-      100% { transform: scale(1);   opacity: 1; }
-    }
-
-    .fog-pulse {
-      animation: fogPulse 0.7s ease-in-out 2;
-    }
-
-    .eyes-back { z-index: 2; }
-    .eyes-front { z-index: 4; }
-    .big-eye-layer { z-index: 7; }
-
-    .forest-eyes-pair {
+    .eye-pair {
       position: absolute;
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       justify-content: center;
-      opacity: 0;
-      animation: floatEyes 4s ease-in-out infinite;
-      transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+      animation: eyeFloat 4s ease-in-out infinite;
     }
 
-    .forest-container.show .forest-eyes-pair {
-      opacity: 0.9;
-      transition: opacity 1s ease 0.4s;
-    }
-
-    body.power-off.scare-1 .forest-container.show .forest-eyes-pair {
-      filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.9));
-    }
-
-    body.power-off.scare-2 .forest-container.show .forest-eyes-pair,
-    body.power-off.scare-3 .forest-container.show .forest-eyes-pair {
-      filter: drop-shadow(0 0 14px rgba(0, 0, 0, 1));
-    }
-
-    .forest-eyes-pair.flinch {
-      animation: none;
-      opacity: 0;
-      transform: translateY(4px) scale(0.7);
-    }
-
-    .big-eye-layer .forest-eyes-pair {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(3.4);
-      animation: none;
-    }
-
-    .forest-eye {
-      width: 28px;
+    .eye-shell {
+      width: 26px;
       height: 14px;
       border-radius: 999px;
+      background: #020617;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .forest-eye-inner {
-      width: 22px;
+    .eye-inner {
+      width: 20px;
       height: 10px;
       border-radius: 999px;
-      background: #020617;
+      background: var(--eye-sclera);
       position: relative;
       overflow: hidden;
-      box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
-      transform-origin: center;
-      animation: blinkEye 3s infinite;
+      transform-origin: center center;
+      animation: eyeBlink 4.5s ease-in-out infinite;
+      box-shadow: none;
+      transition: box-shadow 0.4s ease;
     }
 
-    .forest-eye-inner::before {
-      content: "";
-      position: absolute;
-      inset: 1px;
-      border-radius: inherit;
-      background: var(--eye-sclera);
+    /* Glow when dark */
+    body.power-off .eye-inner {
+      box-shadow:
+        0 0 10px rgba(74, 222, 128, 0.8),
+        0 0 28px rgba(34, 197, 94, 0.8);
     }
 
-    .forest-eye-pupil {
+    body.power-off.scare-2 .eye-inner {
+      box-shadow:
+        0 0 14px rgba(74, 222, 128, 1),
+        0 0 40px rgba(34, 197, 94, 1);
+    }
+
+    body.power-off.scare-3 .eye-inner {
+      box-shadow:
+        0 0 20px rgba(74, 222, 128, 1),
+        0 0 70px rgba(34, 197, 94, 1);
+    }
+
+    .eye-pupil {
       position: absolute;
       width: 6px;
-      height: 10px;
+      height: 9px;
+      border-radius: 999px;
       background: var(--eye-pupil);
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      border-radius: 999px;
-      opacity: 0.95;
     }
 
-    body.power-off .forest-container.show .forest-eye-inner {
-      background: rgba(15, 23, 42, 0.8);
-      box-shadow:
-        0 0 14px rgba(74, 222, 128, 0.9),
-        0 0 32px rgba(34, 197, 94, 0.95),
-        0 0 72px rgba(22, 163, 74, 0.9);
-    }
-
-    body.power-off.scare-1 .forest-container.show .forest-eye-inner {
-      box-shadow:
-        0 0 18px rgba(74, 222, 128, 1),
-        0 0 40px rgba(34, 197, 94, 1),
-        0 0 100px rgba(22, 163, 74, 1);
-    }
-
-    body.power-off.scare-2 .forest-container.show .forest-eye-inner {
-      box-shadow:
-        0 0 22px rgba(74, 222, 128, 1),
-        0 0 55px rgba(34, 197, 94, 1),
-        0 0 130px rgba(22, 163, 74, 1);
-    }
-
-    body.power-off.scare-3 .forest-container.show .forest-eye-inner {
-      box-shadow:
-        0 0 26px rgba(74, 222, 128, 1),
-        0 0 80px rgba(34, 197, 94, 1),
-        0 0 180px rgba(22, 163, 74, 1);
-    }
-
-    /* Slightly cheaper glow on small screens */
-    @media (max-width: 600px) {
-      body.power-off .forest-container.show .forest-eye-inner {
-        box-shadow:
-          0 0 12px rgba(74, 222, 128, 0.9),
-          0 0 28px rgba(34, 197, 94, 0.95);
-      }
-
-      body.power-off.scare-2 .forest-container.show .forest-eye-inner,
-      body.power-off.scare-3 .forest-container.show .forest-eye-inner {
-        box-shadow:
-          0 0 18px rgba(74, 222, 128, 1),
-          0 0 40px rgba(34, 197, 94, 1);
-      }
-    }
-
-    .forest-eye-inner.rare-eye {
-      /* blue-ish glow */
-    }
-
-    body.power-off .forest-container.show .forest-eye-inner.rare-eye {
-      box-shadow:
-        0 0 18px rgba(56, 189, 248, 1),
-        0 0 40px rgba(59, 130, 246, 1),
-        0 0 80px rgba(37, 99, 235, 0.9);
-    }
-
-    body.power-off.scare-2 .forest-container.show .forest-eye-inner.rare-eye,
-    body.power-off.scare-3 .forest-container.show .forest-eye-inner.rare-eye {
-      box-shadow:
-        0 0 24px rgba(56, 189, 248, 1),
-        0 0 70px rgba(59, 130, 246, 1),
-        0 0 160px rgba(37, 99, 235, 1);
-    }
-
-    .forest-eye-inner.sentinel-eye {
-      animation: none !important;
-      transform: scaleY(1);
-    }
-
-    body.power-off .forest-container.show .forest-eye-inner.sentinel-eye {
-      box-shadow:
-        0 0 20px rgba(59, 130, 246, 1),
-        0 0 48px rgba(37, 99, 235, 1),
-        0 0 96px rgba(30, 64, 175, 0.95);
-    }
-
-    body.power-off.scare-3 .forest-container.show .forest-eye-inner.sentinel-eye {
-      box-shadow:
-        0 0 28px rgba(59, 130, 246, 1),
-        0 0 100px rgba(37, 99, 235, 1),
-        0 0 210px rgba(30, 64, 175, 1);
-    }
-
-    .forest-eye-inner.evil-eye::before {
+    /* evil variant for higher scare */
+    .eye-inner.evil {
       background: #fee2e2;
     }
-
-    .forest-eye-inner.evil-eye .forest-eye-pupil {
+    .eye-inner.evil .eye-pupil {
       width: 3px;
-      height: 12px;
+      height: 9px;
       background: #0b1120;
-      border-radius: 999px;
     }
-
-    body.power-off.scare-2 .forest-container.show .forest-eye-inner.evil-eye,
-    body.power-off.scare-3 .forest-container.show .forest-eye-inner.evil-eye {
+    body.power-off.scare-3 .eye-inner.evil {
       box-shadow:
-        0 0 22px rgba(248, 113, 113, 1),
-        0 0 70px rgba(185, 28, 28, 1),
-        0 0 150px rgba(127, 29, 29, 1);
+        0 0 18px rgba(248, 113, 113, 1),
+        0 0 55px rgba(127, 29, 29, 1);
     }
 
-    .big-eye-layer .forest-eye-pupil {
-      width: 8px;
-      height: 14px;
-    }
-
-    @keyframes floatEyes {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-
-    @keyframes blinkEye {
-      0%, 90% { transform: scaleY(1); }
-      95% { transform: scaleY(0.1); }
-      100% { transform: scaleY(1); }
-    }
-
-    .fireflies-layer {
-      z-index: 6;
-      opacity: 0;
-      transition: opacity 1.2s ease;
-    }
-    .forest-container.show .fireflies-layer {
-      opacity: 1;
-    }
-
-    .firefly {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 999px;
-      background: radial-gradient(circle, #bbf7d0 0, #22c55e 45%, transparent 75%);
-      box-shadow:
-        0 0 10px rgba(74, 222, 128, 0.8),
-        0 0 18px rgba(22, 163, 74, 0.8);
-      opacity: 0.4;
-      animation: fireflyDrift 10s ease-in-out infinite;
-    }
-
-    .firefly:nth-child(3n) {
-      width: 5px;
-      height: 5px;
-      animation-duration: 14s;
-    }
-
-    .firefly:nth-child(4n) {
-      animation-duration: 7s;
-    }
-
-    @keyframes fireflyDrift {
-      0% {
-        transform: translate3d(0, 0, 0) scale(1);
-        opacity: 0.2;
-      }
-      30% {
-        opacity: 1;
-      }
-      50% {
-        transform: translate3d(12px, -10px, 0) scale(1.1);
-        opacity: 0.6;
-      }
-      80% {
-        transform: translate3d(-8px, -18px, 0) scale(0.9);
-        opacity: 0.9;
-      }
-      100% {
-        transform: translate3d(0, 0, 0) scale(1);
-        opacity: 0.3;
-      }
-    }
-
-    .footstep-layer {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 15%;
-      z-index: 5;
-      pointer-events: none;
-    }
-
-    .footstep {
-      position: absolute;
-      bottom: 0;
-      width: 12vw;
-      height: 80%;
-      background:
-        radial-gradient(circle at 50% 0, rgba(15, 23, 42, 0.9), transparent 70%);
-      opacity: 0.4;
-    }
-
-    .leaf-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 6;
-      pointer-events: none;
-    }
-
-    .leaf {
-      position: absolute;
-      width: 8px;
-      height: 16px;
-      border-radius: 999px;
-      background: linear-gradient(to bottom, #15803d, #052e16);
-      opacity: 0;
-      animation: leafFall linear infinite;
-    }
-
-    @keyframes leafFall {
-      0% {
-        transform: translate3d(0, -10vh, 0) rotate(0deg);
-        opacity: 0;
-      }
-      20% {
-        opacity: 0.7;
-      }
-      50% {
-        transform: translate3d(-8px, 45vh, 0) rotate(40deg);
-        opacity: 0.9;
-      }
-      80% {
-        opacity: 0.6;
-      }
-      100% {
-        transform: translate3d(4px, 110vh, 0) rotate(-30deg);
-        opacity: 0;
-      }
-    }
-
-    .scare-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 8;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.7s ease;
-      mix-blend-mode: soft-light;
-      background:
-        radial-gradient(circle at 30% 20%, rgba(239, 68, 68, 0.25) 0, transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.18) 0, transparent 45%),
-        linear-gradient(135deg, rgba(15, 23, 42, 0.45), rgba(0, 0, 0, 0.9));
-    }
-
-    body.power-off.scare-1 .scare-overlay {
-      opacity: 0.5;
-    }
-
-    body.power-off.scare-2 .scare-overlay {
-      opacity: 0.75;
-    }
-
-    body.power-off.scare-3 .scare-overlay {
-      opacity: 1;
-    }
-
-    .silhouette-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 6;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-
-    .silhouette-layer.visible {
-      opacity: 1;
-    }
-
-    .silhouette {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 14vw;
-      height: 48vh;
-      max-width: 140px;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(15, 23, 42, 0.9));
-      border-radius: 60% 60% 12% 12%;
-      box-shadow:
-        0 0 40px rgba(0, 0, 0, 1),
-        0 -20px 60px rgba(0, 0, 0, 1);
-    }
-
-    .silhouette-head {
-      position: absolute;
-      top: -22%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 42%;
-      height: 34%;
-      background: rgba(0, 0, 0, 0.95);
-      border-radius: 50%;
-      box-shadow:
-        0 0 20px rgba(0, 0, 0, 1);
-    }
-
-    .silhouette-eye {
-      position: absolute;
-      top: 38%;
-      width: 9px;
-      height: 5px;
-      border-radius: 999px;
-      background: #000;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 1);
-    }
-
-    .silhouette-eye::before {
-      content: "";
-      position: absolute;
-      inset: 1px;
-      border-radius: inherit;
-      background: #fef9c3;
-      box-shadow:
-        0 0 10px rgba(250, 250, 210, 0.9),
-        0 0 24px rgba(220, 38, 38, 0.8);
-    }
-
-    .silhouette-eye.left {
-      left: 18%;
-    }
-    .silhouette-eye.right {
-      right: 18%;
-    }
-
-    .afterimage-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 4;
-      opacity: 0;
-      transition: opacity 1.2s ease;
-    }
-
-    .afterimage-layer.visible {
-      opacity: 0.6;
-    }
-
-    .afterimage-layer .forest-eyes-pair {
-      opacity: 0.35;
-      animation: none;
-      filter: blur(1px);
-    }
-
-    .afterimage-layer .forest-eye-inner {
-      box-shadow: none;
-      background: transparent;
-    }
-
+    /* MAIN PANEL (smaller UI) */
     .scene {
-      width: min(360px, 100vw - 2rem);
+      width: min(340px, 100vw - 1.5rem);
       background: radial-gradient(circle at top, #0b2534 0, var(--panel-on) 50%, #020617 100%);
       border-radius: 18px;
-      padding: 1.4rem 1.2rem 1.35rem;
+      padding: 1.1rem 1rem 1.15rem;
       box-shadow:
-        0 22px 46px rgba(0, 0, 0, 0.9),
-        0 0 30px rgba(15, 118, 110, 0.4);
+        0 18px 40px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
       position: relative;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      z-index: 10;
+      z-index: 2;
       transition:
-        background 0.6s ease,
-        box-shadow 0.6s ease,
-        border-color 0.6s ease,
-        transform 0.6s ease,
-        opacity 0.6s ease;
+        background 0.5s ease,
+        box-shadow 0.5s ease,
+        border-color 0.5s ease,
+        opacity 0.5s ease,
+        transform 0.5s ease;
     }
 
     .scene.power-off {
       background: var(--panel-off);
-      box-shadow: 0 16px 32px rgba(0, 0, 0, 1);
-      border-color: rgba(30, 64, 175, 0.1);
-      opacity: 0.8;
-      transform: translateY(4px) scale(0.98);
+      border-color: rgba(30, 64, 175, 0.4);
+      opacity: 0.82;
+      transform: translateY(3px) scale(0.99);
     }
 
     .scene-header {
       text-align: center;
-      margin-bottom: 0.9rem;
-      z-index: 2;
-      position: relative;
+      margin-bottom: 0.7rem;
     }
 
     .scene-header p {
-      font-size: 0.9rem;
+      font-size: 0.86rem;
       color: var(--text-soft);
     }
 
@@ -733,44 +240,35 @@
     }
 
     .lever-area {
-      position: relative;
-      margin-top: 0.4rem;
-      padding: 1.2rem 1rem 1.4rem;
-      border-radius: 16px;
+      margin-top: 0.3rem;
+      padding: 1.1rem 0.9rem 1.2rem;
+      border-radius: 14px;
       background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      border: 1px solid rgba(148, 163, 184, 0.45);
       box-shadow:
         inset 0 0 0 1px rgba(15, 23, 42, 0.9),
-        0 18px 40px rgba(0, 0, 0, 0.8);
+        0 14px 30px rgba(0, 0, 0, 0.9);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.9rem;
-      z-index: 2;
+      gap: 0.7rem;
     }
 
     .scene.power-off .lever-area {
-      background: radial-gradient(circle at center, rgba(15, 23, 42, 0.96), rgba(3, 7, 18, 0.99));
+      opacity: 0.8;
       box-shadow:
-        inset 0 0 0 1px rgba(15, 23, 42, 0.8),
-        0 12px 30px rgba(0, 0, 0, 0.95);
-      border-color: rgba(30, 64, 175, 0.5);
-      opacity: 0.6;
-      transition: opacity 0.6s ease;
-    }
-
-    .scene.power-off .lever-area:hover {
-      opacity: 1;
+        inset 0 0 0 1px rgba(15, 23, 42, 0.9),
+        0 10px 22px rgba(0, 0, 0, 1);
     }
 
     .label-row {
+      width: 100%;
       display: flex;
       justify-content: space-between;
-      width: 100%;
-      font-size: 0.8rem;
-      color: var(--text-soft);
+      font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
+      color: var(--text-soft);
     }
 
     .label-row span:nth-child(2) {
@@ -780,114 +278,96 @@
 
     .lever-wrapper {
       position: relative;
-      width: 220px;
-      height: 140px;
+      width: 180px;
+      height: 110px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-top: 0.3rem;
+      margin-top: 0.2rem;
     }
 
     .lever-base {
       position: absolute;
-      width: 160px;
-      height: 36px;
-      background: radial-gradient(circle at top, #475569 0, var(--lever-base) 60%);
+      width: 130px;
+      height: 30px;
+      bottom: 22px;
       border-radius: 999px;
-      bottom: 26px;
+      background: radial-gradient(circle at top, #4b5563 0, var(--lever-base) 60%);
       box-shadow:
-        inset 0 4px 8px rgba(15, 23, 42, 0.7),
-        0 12px 24px rgba(0, 0, 0, 0.8);
-      transition: box-shadow 0.3s ease;
-    }
-
-    .scene.power-off .lever-base {
-      box-shadow:
-        inset 0 3px 6px rgba(15, 23, 42, 0.9),
-        0 8px 18px rgba(0, 0, 0, 1);
+        inset 0 4px 6px rgba(15, 23, 42, 0.8),
+        0 8px 16px rgba(0, 0, 0, 0.9);
     }
 
     .lever-base::before {
       content: "";
       position: absolute;
-      inset: 6px 10px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top, #020617, #020617);
-      box-shadow: inset 0 0 0 1px rgba(51, 65, 85, 0.9);
+      inset: 5px 10px;
+      border-radius: inherit;
+      background: #020617;
+      box-shadow: inset 0 0 0 1px rgba(55, 65, 81, 0.9);
     }
 
     .lever-button {
       position: relative;
-      width: 140px;
-      height: 140px;
+      width: 110px;
+      height: 110px;
       border-radius: 999px;
       border: none;
-      padding: 0;
       background: transparent;
       cursor: pointer;
       transform-origin: center bottom;
-      transition:
-        transform 0.25s cubic-bezier(0.37, 0, 0.63, 1),
-        filter 0.25s ease;
+      transition: transform 0.2s ease, filter 0.2s ease;
       outline: none;
     }
 
-    .lever-button:active {
-      filter: brightness(1.08);
-    }
-
     .lever-button.on {
-      transform: rotate(-25deg);
+      transform: rotate(-22deg);
     }
-
     .lever-button.off {
-      transform: rotate(25deg);
+      transform: rotate(22deg);
     }
 
     .lever-stick {
       position: absolute;
-      width: 12px;
-      height: 80px;
-      background: linear-gradient(to right, #e5e7eb, #cbd5f5, #e5e7eb);
+      width: 10px;
+      height: 60px;
       left: 50%;
+      bottom: 30px;
       transform: translateX(-50%);
-      bottom: 40px;
       border-radius: 999px;
+      background: linear-gradient(to right, #e5e7eb, #d1d5db, #e5e7eb);
       box-shadow:
-        -2px 0 4px rgba(15, 23, 42, 0.5),
-        2px 0 4px rgba(15, 23, 42, 0.5);
+        -1px 0 3px rgba(15, 23, 42, 0.6),
+        1px 0 3px rgba(15, 23, 42, 0.6);
     }
 
     .lever-knob {
       position: absolute;
-      width: 54px;
-      height: 54px;
-      border-radius: 999px;
+      width: 44px;
+      height: 44px;
       left: 50%;
-      bottom: 84px;
+      bottom: 68px;
       transform: translateX(-50%);
-      background: radial-gradient(circle at 30% 20%, #ffe4e4, var(--lever-knob) 55%, #7f1d1d);
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #fef2f2, var(--lever-knob-off) 55%, #7f1d1d);
       box-shadow:
-        0 10px 16px rgba(0, 0, 0, 0.7),
-        0 0 16px rgba(248, 113, 113, 0.7);
-      transition:
-        background 0.25s ease,
-        box-shadow 0.25s ease;
+        0 8px 14px rgba(0, 0, 0, 0.8),
+        0 0 14px rgba(248, 113, 113, 0.8);
+      transition: background 0.2s ease, box-shadow 0.2s ease;
     }
 
     .lever-button.on .lever-knob {
       background: radial-gradient(circle at 30% 20%, #ecfdf3, var(--lever-knob-on) 55%, #15803d);
       box-shadow:
-        0 10px 18px rgba(0, 0, 0, 0.7),
-        0 0 24px rgba(74, 222, 128, 0.9);
+        0 8px 14px rgba(0, 0, 0, 0.8),
+        0 0 18px rgba(74, 222, 128, 0.9);
     }
 
     .indicator-row {
       display: flex;
       align-items: center;
       gap: 0.6rem;
-      font-size: 0.9rem;
-      margin-top: 0.25rem;
+      font-size: 0.86rem;
     }
 
     .status-dot {
@@ -896,9 +376,7 @@
       border-radius: 999px;
       background: #22c55e;
       box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
-      transition:
-        background 0.2s ease,
-        box-shadow 0.2s ease;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
     }
 
     .status-dot.off {
@@ -913,59 +391,38 @@
     .status-strong {
       font-weight: 600;
       color: var(--accent);
-      transition: color 0.2s ease, letter-spacing 0.15s ease;
-    }
-
-    .status-strong.glitch {
-      color: #f97373;
-      text-shadow:
-        0 0 6px rgba(248, 113, 113, 0.9),
-        0 0 18px rgba(239, 68, 68, 0.95);
     }
 
     .hint {
       font-size: 0.78rem;
       color: var(--text-soft);
-      opacity: 0.9;
+      text-align: center;
       margin-top: 0.2rem;
-      text-align: center;
-      min-height: 1.2em;
-    }
-
-    .depth-line {
-      margin-top: 0.1rem;
-      font-size: 0.7rem;
-      color: #4b5563;
-      text-align: center;
-      opacity: 0.75;
+      min-height: 1.3em;
     }
 
     .scare-control {
       margin-top: 0.5rem;
       width: 100%;
+      font-size: 0.76rem;
+      color: var(--text-soft);
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
-      font-size: 0.78rem;
-      color: var(--text-soft);
+      gap: 0.3rem;
     }
 
-    .scare-label-main span:first-child {
+    .scare-topline {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-size: 0.7rem;
-    }
-
-    .scare-label-main span:last-child {
-      font-size: 0.75rem;
-      opacity: 0.8;
     }
 
     .scare-slider-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
-      width: 100%;
+      gap: 0.2rem;
     }
 
     .scare-slider {
@@ -983,66 +440,48 @@
     .scare-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #6b7280;
-      box-shadow:
-        0 0 6px rgba(0, 0, 0, 0.8);
-      transition:
-        background 0.25s ease,
-        box-shadow 0.25s ease,
-        transform 0.15s ease;
-      margin-top: -6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #9ca3af;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+      margin-top: -5px;
     }
-
     .scare-slider::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #6b7280;
-      box-shadow:
-        0 0 6px rgba(0, 0, 0, 0.8);
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #9ca3af;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
       border: none;
-      transition:
-        background 0.25s ease,
-        box-shadow 0.25s ease,
-        transform 0.15s ease;
-    }
-
-    .scare-slider:active::-webkit-slider-thumb,
-    .scare-slider:active::-moz-range-thumb {
-      transform: scale(1.1);
     }
 
     .scare-slider-labels {
       display: flex;
       justify-content: space-between;
       font-size: 0.7rem;
-      opacity: 0.8;
+      opacity: 0.9;
     }
 
     .toast {
       position: absolute;
-      left: 1.4rem;
-      bottom: 1.4rem;
-      padding: 0.45rem 0.8rem;
-      background: rgba(2, 6, 23, 0.98);
+      left: 1.2rem;
+      bottom: 1.2rem;
+      padding: 0.4rem 0.7rem;
       border-radius: 999px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
+      background: rgba(2, 6, 23, 0.98);
       color: var(--accent);
-      border: 1px solid rgba(190, 242, 100, 0.6);
-      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(190, 242, 100, 0.7);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.9);
       display: flex;
-      align-items: center;
       gap: 0.4rem;
+      align-items: center;
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(8px);
       pointer-events: none;
-      transition:
-        opacity 0.25s ease,
-        transform 0.25s ease;
-      z-index: 12;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 3;
     }
 
     .toast.show {
@@ -1050,113 +489,31 @@
       transform: translateY(0);
     }
 
-    /* BIG GLITCH OVERLAY */
-    .glitch-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 30;
-      opacity: 0;
-      transition: opacity 0.12s ease;
-      background: transparent;
-    }
-
-    .glitch-overlay.visible {
-      opacity: 1;
-    }
-
-    .glitch-overlay span {
-      font-size: clamp(2.6rem, 7vw, 4.2rem);
-      font-weight: 800;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #f97373;
-      text-shadow:
-        0 0 6px rgba(248, 113, 113, 0.95),
-        0 0 22px rgba(248, 113, 113, 0.95),
-        0 0 48px rgba(127, 29, 29, 1);
-      animation: glitchShake 0.6s ease both;
-    }
-
-    @keyframes glitchShake {
-      0% {
-        transform: translate3d(0, 0, 0) scale(1);
-      }
-      20% {
-        transform: translate3d(-4px, -2px, 0) scale(1.04);
-      }
-      40% {
-        transform: translate3d(5px, 1px, 0) scale(1.02);
-      }
-      60% {
-        transform: translate3d(-6px, 3px, 0) scale(1.06);
-      }
-      80% {
-        transform: translate3d(3px, -1px, 0) scale(1.03);
-      }
-      100% {
-        transform: translate3d(0, 0, 0) scale(1);
-      }
-    }
-
     @media (max-width: 480px) {
       body {
-        padding-top: 88px;
+        padding-top: 90px;
       }
-
       .scene {
-        width: min(340px, 100vw - 1.5rem);
-        padding: 1.3rem 1rem 1.3rem;
-      }
-
-      .lever-wrapper {
-        width: 190px;
-        height: 130px;
-      }
-
-      .lever-base {
-        width: 140px;
+        width: min(320px, 100vw - 1rem);
       }
     }
   </style>
 </head>
 <body>
-  <div class="tunnel-focus"></div>
+  <div class="fog-layer" id="fogLayer"></div>
+  <div class="eyes-layer" id="eyesLayer"></div>
 
-  <div id="afterimageLayer" class="afterimage-layer"></div>
-
-  <div id="forestContainer" class="forest-container">
-    <div class="forest-container-inner">
-      <div id="eyesBack" class="eyes-layer eyes-back"></div>
-      <div class="fog-layer fog-back"></div>
-      <div class="fog-layer fog-mid"></div>
-      <div id="eyesFront" class="eyes-layer eyes-front"></div>
-      <div id="fireflies" class="fireflies-layer"></div>
-      <div class="fog-layer fog-front"></div>
-      <div id="footstepLayer" class="footstep-layer"></div>
-      <div id="leafLayer" class="leaf-layer"></div>
-      <div id="bigEyeLayer" class="eyes-layer big-eye-layer"></div>
-      <div id="silhouetteLayer" class="silhouette-layer"></div>
-      <div id="scareOverlay" class="scare-overlay"></div>
-    </div>
-  </div>
-
-  <div id="glitchOverlay" class="glitch-overlay">
-    <span id="glitchOverlayText">STAY</span>
-  </div>
-
-  <div class="scene" aria-live="polite">
+  <div class="scene" id="scene">
     <div class="scene-header">
-      <p>Fog is thin. Turn it <strong>off</strong> if you want to see who’s actually here.</p>
+      <p>
+        Lights keep the trail calm. Turn it <strong>off</strong> if you want to see who was already there.
+      </p>
     </div>
 
     <div class="lever-area">
       <div class="label-row">
         <span>Zone</span>
-        <span>Deep Fog Section</span>
+        <span>Deep Fog Trail</span>
       </div>
 
       <div class="lever-wrapper">
@@ -1165,7 +522,7 @@
           id="leverButton"
           class="lever-button on"
           aria-pressed="true"
-          aria-label="Fog lever toggle"
+          aria-label="Fog lever"
         >
           <div class="lever-stick"></div>
           <div class="lever-knob"></div>
@@ -1176,777 +533,313 @@
         <div id="statusDot" class="status-dot"></div>
         <div class="status-text">
           Status:
-          <span id="statusLabel" class="status-strong">ON – Fog suppressed</span>
+          <span id="statusLabel" class="status-strong">ON – trail lights steady</span>
         </div>
       </div>
 
       <p class="hint" id="hint">
-        Turn it off. Let the fog rise for a moment. See who was already looking.
+        Turn it off for a few seconds. Let the fog fill and count the eyes.
       </p>
-      <p id="depthLine" class="depth-line">Depth: 0 blackouts</p>
 
       <div class="scare-control">
-        <div class="scare-label-main">
+        <div class="scare-topline">
           <span>SCARE MODE</span>
-          <span>0 = off. 3 = nightmare.</span>
+          <span id="scareLabel">OFF</span>
         </div>
         <div class="scare-slider-wrapper">
           <input
-            type="range"
             id="scareSlider"
             class="scare-slider"
+            type="range"
             min="0"
             max="3"
             step="1"
             value="0"
           />
           <div class="scare-slider-labels">
-            <span>Off</span>
-            <span>Scare</span>
-            <span>Worse</span>
-            <span>Nightmare</span>
+            <span>0</span>
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="toast" class="toast">
+    <div class="toast" id="toast">
       <span>👁️</span>
-      <span id="toastText">The fog thins. For now.</span>
+      <span id="toastText">Fog thinned. The eyes pretend nothing happened.</span>
     </div>
   </div>
 
   <script>
     (function () {
+      const body = document.body;
+      const scene = document.getElementById("scene");
       const leverButton = document.getElementById("leverButton");
       const statusDot = document.getElementById("statusDot");
       const statusLabel = document.getElementById("statusLabel");
+      const scareSlider = document.getElementById("scareSlider");
+      const scareLabel = document.getElementById("scareLabel");
       const toast = document.getElementById("toast");
       const toastText = document.getElementById("toastText");
-      const scene = document.querySelector(".scene");
-      const body = document.body;
-
-      const forestContainer = document.getElementById("forestContainer");
-      const eyesBack = document.getElementById("eyesBack");
-      const eyesFront = document.getElementById("eyesFront");
-      const firefliesContainer = document.getElementById("fireflies");
-      const fogBack = document.querySelector(".fog-back");
-      const fogMid = document.querySelector(".fog-mid");
-      const fogFront = document.querySelector(".fog-front");
-      const bigEyeLayer = document.getElementById("bigEyeLayer");
-      const scareSlider = document.getElementById("scareSlider");
+      const eyesLayer = document.getElementById("eyesLayer");
+      const fogLayer = document.getElementById("fogLayer");
       const hintEl = document.getElementById("hint");
-      const depthLineEl = document.getElementById("depthLine");
-      const afterimageLayer = document.getElementById("afterimageLayer");
-      const silhouetteLayer = document.getElementById("silhouetteLayer");
-      const footstepLayer = document.getElementById("footstepLayer");
-      const leafLayer = document.getElementById("leafLayer");
-      const glitchOverlay = document.getElementById("glitchOverlay");
-      const glitchOverlayText = document.getElementById("glitchOverlayText");
-
-      const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth <= 600;
 
       let isOn = true;
+      let scareLevel = 0;
       let mischiefTimeout = null;
       let toastTimeout = null;
-      let bigEyeTimeout = null;
-      let glitchTimeout = null;
-      let silhouetteTimeout = null;
-      let afterimageTimeout = null;
-      let bigGlitchTimeout = null;
 
       let offCount = 0;
-      let depth = 0;
-
       let lastToggleTime = 0;
-      const COOLDOWN = 450;
-
-      const BACK_EYES_COUNT = isMobile ? 30 : 50;
-      const FRONT_EYES_COUNT = isMobile ? 16 : 28;
-
-      let scareLevel = 0;
-      let secretStreak = 0;
-      let lastOffTime = 0;
-
-      let nextBigGlitchIn = 2;
-
-      let audioCtx = null;
-      let ambientOsc = null;
-      let ambientGain = null;
-      let whisperSource = null;
-      let whisperGain = null;
+      const COOLDOWN_MS = 400;
 
       function getAudioCtx() {
         const Ctx = window.AudioContext || window.webkitAudioContext;
         if (!Ctx) return null;
-        if (!audioCtx) {
-          audioCtx = new Ctx();
+        try {
+          return new Ctx();
+        } catch {
+          return null;
         }
-        return audioCtx;
       }
 
-      function initAmbience() {
-        if (isMobile) return; // skip continuous drone on phone
-        const ctx = getAudioCtx();
-        if (!ctx || ambientOsc) return;
-
-        ambientOsc = ctx.createOscillator();
-        ambientGain = ctx.createGain();
-
-        ambientOsc.type = "sawtooth";
-        ambientOsc.frequency.value = 45;
-        ambientGain.gain.value = 0;
-
-        ambientOsc.connect(ambientGain);
-        ambientGain.connect(ctx.destination);
-        ambientOsc.start();
-      }
-
-      function initWhispers() {
-        if (isMobile) return; // skip on phone to reduce load
-        const ctx = getAudioCtx();
-        if (!ctx || whisperSource) return;
-
-        const bufferSize = ctx.sampleRate * 2;
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          data[i] = (Math.random() * 2 - 1) * 0.6;
-        }
-
-        const source = ctx.createBufferSource();
-        source.buffer = buffer;
-        source.loop = true;
-
-        const filter = ctx.createBiquadFilter();
-        filter.type = "bandpass";
-        filter.frequency.value = 800;
-        filter.Q.value = 0.8;
-
-        const gain = ctx.createGain();
-        gain.gain.value = 0;
-
-        source.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctx.destination);
-
-        source.start();
-
-        whisperSource = source;
-        whisperGain = gain;
-      }
-
-      function setAmbient(active) {
-        if (isMobile) return;
-        const ctx = getAudioCtx();
-        if (!ctx || !ambientGain) return;
-        const now = ctx.currentTime;
-
-        let target = 0;
-        if (active) {
-          if (scareLevel === 0) target = 0.05;
-          else if (scareLevel === 1) target = 0.08;
-          else if (scareLevel === 2) target = 0.12;
-          else if (scareLevel === 3) target = 0.18;
-        }
-
-        ambientGain.gain.cancelScheduledValues(now);
-        ambientGain.gain.setValueAtTime(ambientGain.gain.value, now);
-        ambientGain.gain.linearRampToValueAtTime(target, now + 0.9);
-      }
-
-      function setWhispers(active) {
-        if (isMobile) return;
-        const ctx = getAudioCtx();
-        if (!ctx || !whisperGain) return;
-        const now = ctx.currentTime;
-
-        let target = 0;
-        if (active) {
-          if (scareLevel === 1) target = 0.01;
-          else if (scareLevel === 2) target = 0.02;
-          else if (scareLevel === 3) target = 0.035;
-        }
-
-        whisperGain.gain.cancelScheduledValues(now);
-        whisperGain.gain.setValueAtTime(whisperGain.gain.value, now);
-        whisperGain.gain.linearRampToValueAtTime(target, now + 1.2);
-      }
-
-      function playSound(freq, type = "square", volume = 0.11) {
+      function playClick(freq) {
         const ctx = getAudioCtx();
         if (!ctx) return;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         const now = ctx.currentTime;
 
-        osc.type = type;
+        osc.type = "square";
         osc.frequency.value = freq;
-        gain.gain.setValueAtTime(volume, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.15);
+        osc.stop(now + 0.12);
       }
 
-      function updateScareClasses() {
+      function updateScareLabel() {
+        const map = ["OFF", "SCARE", "WORSE", "NIGHTMARE"];
+        scareLabel.textContent = map[scareLevel] || "OFF";
+      }
+
+      function setLeverState(on, silent = false) {
+        isOn = on;
+        leverButton.classList.toggle("on", on);
+        leverButton.classList.toggle("off", !on);
+        statusDot.classList.toggle("off", !on);
+        leverButton.setAttribute("aria-pressed", String(on));
+
+        body.classList.toggle("power-off", !on);
         body.classList.remove("scare-0", "scare-1", "scare-2", "scare-3");
         body.classList.add("scare-" + scareLevel);
-      }
 
-      function createEyes(container, count, isFront) {
-        if (!container) return;
-        const fragment = document.createDocumentFragment();
+        scene.classList.toggle("power-off", !on);
 
-        for (let i = 0; i < count; i++) {
-          const pair = document.createElement("div");
-          pair.className = "forest-eyes-pair";
+        statusLabel.textContent = on
+          ? "ON – trail lights steady"
+          : "OFF – the dark has time to arrange itself";
 
-          let top, left;
-
-          if (isFront) {
-            const depthFactor = Math.min(depth / 6, 1);
-            let centerBias = scareLevel === 3 ? 0.7 : scareLevel === 2 ? 0.5 : 0.3;
-
-            if (Math.random() < 0.6 + depthFactor * 0.25) {
-              const topCenter = 45;
-              const leftCenter = 50;
-              const topRange = 20 - depthFactor * 8;
-              const leftRange = 30 - depthFactor * 10;
-
-              top = topCenter + (Math.random() * topRange - topRange / 2);
-              left = leftCenter + (Math.random() * leftRange - leftRange / 2);
-            } else if (Math.random() < centerBias) {
-              top = 40 + Math.random() * 30;
-              left = 25 + Math.random() * 50;
-            } else {
-              top = 10 + Math.random() * 80;
-              left = 5 + Math.random() * 90;
-            }
-          } else {
-            top = 5 + Math.random() * 90;
-            left = 3 + Math.random() * 94;
-          }
-
-          const scaleBase = isFront ? (isMobile ? 0.7 : 0.8) : 0.45;
-          const scaleVar = Math.random() * (isFront ? 0.35 : 0.35);
-
-          pair.style.top = top + "%";
-          pair.style.left = left + "%";
-          pair.style.transform = "scale(" + (scaleBase + scaleVar).toFixed(2) + ")";
-
-          const delay = Math.random() * 5;
-
-          pair.innerHTML = `
-            <div class="forest-eye">
-              <div class="forest-eye-inner" style="animation-delay: ${delay.toFixed(2)}s">
-                <div class="forest-eye-pupil"></div>
-              </div>
-            </div>
-            <div class="forest-eye">
-              <div class="forest-eye-inner" style="animation-delay: ${delay.toFixed(2)}s">
-                <div class="forest-eye-pupil"></div>
-              </div>
-            </div>
-          `;
-          fragment.appendChild(pair);
-        }
-        container.appendChild(fragment);
-      }
-
-      function markSpecialEyes() {
-        if (!eyesFront) return;
-        const allInner = Array.from(eyesFront.querySelectorAll(".forest-eye-inner"));
-        if (!allInner.length) return;
-
-        allInner.forEach(inner => {
-          if (Math.random() < 0.1) {
-            inner.classList.add("rare-eye");
-          }
-        });
-
-        const sentinel = allInner[Math.floor(Math.random() * allInner.length)];
-        if (sentinel) {
-          sentinel.classList.add("sentinel-eye");
+        if (!silent) {
+          playClick(on ? 220 : 160);
         }
 
+        if (on) {
+          if (eyesLayer) eyesLayer.style.opacity = "0";
+        } else {
+          if (eyesLayer) eyesLayer.style.opacity = "1";
+        }
+      }
+
+      function showToast(message) {
+        toastText.textContent = message;
+        toast.classList.add("show");
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 2200);
+      }
+
+      function randomToast() {
+        const base = [
+          "System overruled the blackout.",
+          "Trail safety kicked the lights back on.",
+          "Whatever that was, it stepped away when the lights did this.",
+          "Fog level reset. The staring doesn’t.",
+        ];
+        const intense = [
+          "That blackout lasted long enough for something to move.",
+          "The dark adjusted around you.",
+          "The fog learned your pattern.",
+        ];
         if (scareLevel >= 2) {
-          const evilChance = scareLevel === 2 ? 0.12 : 0.26;
-          allInner.forEach(inner => {
-            if (Math.random() < evilChance) {
-              inner.classList.add("evil-eye");
-            }
-          });
+          return intense[Math.floor(Math.random() * intense.length)];
         }
-      }
-
-      function makeEyesInteractive() {
-        if (!eyesFront) return;
-        eyesFront.querySelectorAll(".forest-eyes-pair").forEach(pair => {
-          pair.style.cursor = "pointer";
-          pair.addEventListener("click", () => {
-            if (isOn || !body.classList.contains("power-off")) return;
-            if (pair.classList.contains("flinch")) return;
-
-            playSound(600, "square", 0.08);
-            pair.classList.add("flinch");
-            setTimeout(() => {
-              const top = 20 + Math.random() * 60;
-              const left = 10 + Math.random() * 80;
-              pair.style.top = top + "%";
-              pair.style.left = left + "%";
-              pair.classList.remove("flinch");
-            }, 750);
-          });
-        });
-      }
-
-      function regenerateEyes() {
-        if (eyesBack) eyesBack.innerHTML = "";
-        if (eyesFront) eyesFront.innerHTML = "";
-        if (bigEyeLayer) {
-          bigEyeLayer.classList.remove("show");
-          bigEyeLayer.innerHTML = "";
-        }
-
-        createEyes(eyesBack, BACK_EYES_COUNT, false);
-        createEyes(eyesFront, FRONT_EYES_COUNT, true);
-        markSpecialEyes();
-        makeEyesInteractive();
-      }
-
-      function showBigEye() {
-        if (!bigEyeLayer) return;
-        bigEyeLayer.innerHTML = `
-          <div class="forest-eyes-pair">
-            <div class="forest-eye">
-              <div class="forest-eye-inner evil-eye">
-                <div class="forest-eye-pupil"></div>
-              </div>
-            </div>
-            <div class="forest-eye">
-              <div class="forest-eye-inner evil-eye">
-                <div class="forest-eye-pupil"></div>
-              </div>
-            </div>
-          </div>
-        `;
-        bigEyeLayer.classList.add("show");
-
-        setTimeout(() => {
-          bigEyeLayer.classList.remove("show");
-          bigEyeLayer.innerHTML = "";
-        }, 900);
-      }
-
-      function showSilhouette() {
-        if (!silhouetteLayer) return;
-        silhouetteLayer.innerHTML = `
-          <div class="silhouette">
-            <div class="silhouette-head">
-              <div class="silhouette-eye left"></div>
-              <div class="silhouette-eye right"></div>
-            </div>
-          </div>
-        `;
-        silhouetteLayer.classList.add("visible");
-        if (silhouetteTimeout) clearTimeout(silhouetteTimeout);
-        silhouetteTimeout = setTimeout(() => {
-          silhouetteLayer.classList.remove("visible");
-          silhouetteLayer.innerHTML = "";
-        }, 1200);
-      }
-
-      function showAfterimage() {
-        if (!afterimageLayer || !eyesFront) return;
-        if (!eyesFront.children.length) return;
-
-        afterimageLayer.innerHTML = eyesFront.innerHTML;
-        afterimageLayer.classList.add("visible");
-
-        if (afterimageTimeout) clearTimeout(afterimageTimeout);
-        afterimageTimeout = setTimeout(() => {
-          afterimageLayer.classList.remove("visible");
-          setTimeout(() => {
-            afterimageLayer.innerHTML = "";
-          }, 1200);
-        }, 80);
-      }
-
-      function createFireflies(count) {
-        if (!firefliesContainer) return;
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < count; i++) {
-          const f = document.createElement("div");
-          f.className = "firefly";
-          f.style.left = Math.random() * 100 + "%";
-          f.style.top = Math.random() * 100 + "%";
-          f.style.animationDelay = Math.random() * 5 + "s";
-          f.style.animationDuration = (6 + Math.random() * 6) + "s";
-          fragment.appendChild(f);
-        }
-        firefliesContainer.appendChild(fragment);
-      }
-
-      function createFootsteps(count) {
-        if (!footstepLayer) return;
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < count; i++) {
-          const s = document.createElement("div");
-          s.className = "footstep";
-          const left = 5 + Math.random() * 90;
-          s.style.left = left + "%";
-          s.style.opacity = 0.25 + Math.random() * 0.25;
-          fragment.appendChild(s);
-        }
-        footstepLayer.appendChild(fragment);
-      }
-
-      function createLeaves(count) {
-        if (!leafLayer) return;
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < count; i++) {
-          const leaf = document.createElement("div");
-          leaf.className = "leaf";
-          const left = Math.random() * 100;
-          const duration = 6 + Math.random() * 7;
-          const delay = Math.random() * 10;
-          leaf.style.left = left + "%";
-          leaf.style.animationDuration = duration + "s";
-          leaf.style.animationDelay = delay + "s";
-          fragment.appendChild(leaf);
-        }
-        leafLayer.appendChild(fragment);
+        return base[Math.floor(Math.random() * base.length)];
       }
 
       function updateHint() {
         if (!hintEl) return;
-        if (depth === 1) {
-          hintEl.textContent = "That was one blackout. They noticed.";
-        } else if (depth === 3) {
-          hintEl.textContent = "They recognise the pattern now.";
-        } else if (depth === 5) {
-          hintEl.textContent = "You keep inviting the fog back.";
-        } else if (depth === 7) {
-          hintEl.textContent = "It was clearer before you started doing this.";
-        } else if (depth === 10) {
-          hintEl.textContent = "At this point, the dark is doing you a favour.";
+        if (offCount === 0) {
+          hintEl.textContent = "Turn it off for a few seconds. Let the fog fill and count the eyes.";
+        } else if (offCount === 1) {
+          hintEl.textContent = "That blackout wasn’t an accident. They noticed.";
+        } else if (offCount === 3) {
+          hintEl.textContent = "You’re starting to recognise which eyes blink. They’re starting to do the same.";
+        } else if (offCount >= 5) {
+          hintEl.textContent = "At this point, you’re the only one pretending it’s a safety lever.";
         }
       }
 
-      function updateDepthLine() {
-        if (!depthLineEl) return;
-        depthLineEl.textContent = `Depth: ${depth} blackout${depth === 1 ? "" : "s"}`;
-      }
+      function regenerateEyes() {
+        if (!eyesLayer) return;
+        eyesLayer.innerHTML = "";
 
-      function glitchStatus(intenseLevel) {
-        if (!statusLabel || intenseLevel < 3) return;
-        if (glitchTimeout) clearTimeout(glitchTimeout);
+        // more eyes per level
+        const baseCounts = [24, 40, 58, 80];
+        const base = baseCounts[scareLevel] || 24;
+        const isMobile = window.innerWidth <= 600;
+        const totalPairs = isMobile ? Math.round(base * 0.9) : base;
 
-        const originalText = statusLabel.dataset.originalText || statusLabel.textContent;
-        statusLabel.dataset.originalText = originalText;
+        for (let i = 0; i < totalPairs; i++) {
+          const pair = document.createElement("div");
+          pair.className = "eye-pair";
 
-        const phrases = ["STAY", "DON'T", "RUN", "IT SEES YOU"];
-        const glitch = phrases[Math.floor(Math.random() * phrases.length)];
-
-        statusLabel.textContent = glitch;
-        statusLabel.classList.add("glitch");
-        statusLabel.style.letterSpacing = "0.16em";
-
-        glitchTimeout = setTimeout(() => {
-          statusLabel.textContent = statusLabel.dataset.originalText || originalText;
-          statusLabel.classList.remove("glitch");
-          statusLabel.style.letterSpacing = "";
-        }, 600);
-      }
-
-      function triggerBigGlitch() {
-        if (!glitchOverlay || !glitchOverlayText) return;
-        if (!body.classList.contains("power-off") || scareLevel < 3) return;
-
-        const phrases = ["STAY", "DON'T", "RUN", "IT SEES YOU"];
-        const text = phrases[Math.floor(Math.random() * phrases.length)];
-        glitchOverlayText.textContent = text;
-
-        glitchOverlayText.style.animation = "none";
-        void glitchOverlayText.offsetWidth;
-        glitchOverlayText.style.animation = "glitchShake 0.6s ease both";
-
-        glitchOverlay.classList.add("visible");
-
-        if (bigGlitchTimeout) clearTimeout(bigGlitchTimeout);
-        bigGlitchTimeout = setTimeout(() => {
-          glitchOverlay.classList.remove("visible");
-        }, 600);
-      }
-
-      function maybeTriggerBigGlitchOnBlackout() {
-        if (scareLevel < 3) return;
-        nextBigGlitchIn--;
-        if (nextBigGlitchIn <= 0) {
-          triggerBigGlitch();
-          nextBigGlitchIn = 2 + Math.floor(Math.random() * 2);
-        }
-      }
-
-      function setLeverState(on, silent = false) {
-        const wasOff = !isOn;
-        isOn = on;
-
-        leverButton.classList.toggle("on", on);
-        leverButton.classList.toggle("off", !on);
-        statusDot.classList.toggle("off", !on);
-        statusLabel.textContent = on ? "ON – Fog suppressed" : "OFF – The void gazes back";
-        leverButton.setAttribute("aria-pressed", String(on));
-
-        body.classList.toggle("power-off", !on);
-        scene.classList.toggle("power-off", !on);
-        forestContainer.classList.toggle("show", !on);
-
-        if (!silent) {
-          playSound(on ? 220 : 160, "square", isMobile ? 0.07 : 0.11);
-        }
-
-        if (on) {
-          if (wasOff) {
-            showAfterimage();
+          // bias towards mid / lever area, but still fill screen
+          let top, left;
+          if (Math.random() < 0.7) {
+            top = 45 + (Math.random() * 30 - 15);   // ~30–60%
+            left = 50 + (Math.random() * 40 - 20);  // ~30–70%
+          } else {
+            top = 8 + Math.random() * 84;
+            left = 2 + Math.random() * 96;
           }
-          setAmbient(false);
-          setWhispers(false);
-          if (bigEyeLayer) {
-            bigEyeLayer.classList.remove("show");
-            bigEyeLayer.innerHTML = "";
+
+          pair.style.top = top + "%";
+          pair.style.left = left + "%";
+
+          // random float animation timing
+          const floatDuration = 3.2 + Math.random() * 2.5; // 3.2–5.7s
+          const floatDelay = Math.random() * 3;            // 0–3s
+          pair.style.animation = `eyeFloat ${floatDuration.toFixed(1)}s ease-in-out infinite`;
+          pair.style.animationDelay = `${floatDelay.toFixed(2)}s`;
+
+          const eyeHTML = `
+            <div class="eye-shell">
+              <div class="eye-inner">
+                <div class="eye-pupil"></div>
+              </div>
+            </div>
+          `;
+
+          pair.innerHTML = eyeHTML + eyeHTML;
+          eyesLayer.appendChild(pair);
+        }
+
+        // blink timing & evil eyes
+        const innerEyes = eyesLayer.querySelectorAll(".eye-inner");
+        innerEyes.forEach(inner => {
+          const blinkDuration = 3.5 + Math.random() * 3.0; // 3.5–6.5s
+          const blinkDelay = Math.random() * 4.0;          // 0–4s
+          inner.style.animation = `eyeBlink ${blinkDuration.toFixed(1)}s ease-in-out infinite`;
+          inner.style.animationDelay = `${blinkDelay.toFixed(2)}s`;
+
+          if (scareLevel >= 2) {
+            const evilChance = scareLevel === 2 ? 0.18 : 0.32;
+            if (Math.random() < evilChance) {
+              inner.classList.add("evil");
+            } else {
+              inner.classList.remove("evil");
+            }
+          } else {
+            inner.classList.remove("evil");
           }
-        } else {
-          initAmbience();
-          initWhispers();
-          setAmbient(true);
-          setWhispers(true);
-        }
+        });
       }
 
-      function randomMessage(isRare, intenseLevel) {
-        if (isRare && intenseLevel >= 2) {
-          const rareMsgs = [
-            "For a moment, something huge saw you.",
-            "All of it focused on you at once.",
-            "You weren’t supposed to see that."
-          ];
-          return rareMsgs[Math.floor(Math.random() * rareMsgs.length)];
-        }
-        if (intenseLevel >= 2) {
-          const intenseMsgs = [
-            "The fog liked that a bit too much.",
-            "Something stepped closer and stayed.",
-            "You dragged more of them into view."
-          ];
-          return intenseMsgs[Math.floor(Math.random() * intenseMsgs.length)];
-        }
-        const msgs = [
-          "The fog system overruled you.",
-          "Too many eyes. Power rerouted.",
-          "Visibility restored. Mostly.",
-          "Deep Fog doesn’t like staying dark.",
-          "You weren’t alone in that blackout."
-        ];
-        return msgs[Math.floor(Math.random() * msgs.length)];
-      }
-
-      function showToast(msg) {
-        if (!toast || !toastText) return;
-        toastText.textContent = msg;
-        toast.classList.add("show");
-        if (toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => toast.classList.remove("show"), 2600);
-      }
-
-      function triggerFogPulse() {
-        if (!fogMid || !fogFront) return;
-        fogMid.classList.add("fog-pulse");
-        fogFront.classList.add("fog-pulse");
-        setTimeout(() => {
-          fogMid.classList.remove("fog-pulse");
-          fogFront.classList.remove("fog-pulse");
-        }, 1500);
-      }
-
-      function scheduleMischief(isRare, intenseLevel) {
+      function scheduleAutoOn() {
         if (mischiefTimeout) clearTimeout(mischiefTimeout);
-        if (bigEyeTimeout) clearTimeout(bigEyeTimeout);
 
-        let autoTime = isMobile ? 4200 : 4800;
-        if (intenseLevel === 1) autoTime += 400;
-        else if (intenseLevel === 2) autoTime += 800;
-        else if (intenseLevel === 3) autoTime += 1400;
-
-        const bigEyeTime = autoTime - 900;
-
-        if (isRare && !isOn) {
-          bigEyeTimeout = setTimeout(() => {
-            showBigEye();
-          }, bigEyeTime);
-        }
-
-        if (intenseLevel >= 2 && Math.random() < 0.4 && !isOn) {
-          setTimeout(() => {
-            showSilhouette();
-          }, 1200 + Math.random() * 1500);
-        }
-
-        if (intenseLevel >= 3 && !isOn) {
-          setTimeout(() => glitchStatus(intenseLevel), 600);
-          setTimeout(() => glitchStatus(intenseLevel), 1800);
-        }
+        const base = 3500;
+        const extra = scareLevel * 700;
+        const delay = base + extra;
 
         mischiefTimeout = setTimeout(() => {
-          playSound(100, "sawtooth", isMobile ? 0.07 : 0.11);
           setLeverState(true);
-          showToast(randomMessage(isRare, intenseLevel));
-        }, autoTime);
+          showToast(randomToast());
+        }, delay);
       }
-
-      function applyParallax(xNorm, yNorm) {
-        const baseStrength = isMobile ? 24 : 40;
-        const strength = baseStrength;
-        const x = xNorm * strength;
-        const y = yNorm * strength * 0.6;
-
-        if (fogBack) {
-          fogBack.style.transform = `translate3d(${x * 0.18}px, ${y * 0.12}px, 0)`;
-        }
-        if (fogMid) {
-          fogMid.style.transform = `translate3d(${x * 0.35}px, ${y * 0.2}px, 0)`;
-        }
-        if (fogFront) {
-          fogFront.style.transform = `translate3d(${x * 0.55}px, ${y * 0.32}px, 0)`;
-        }
-        if (eyesBack) {
-          eyesBack.style.transform = `translate3d(${x * 0.25}px, ${y * 0.18}px, 0)`;
-        }
-        if (eyesFront) {
-          eyesFront.style.transform = `translate3d(${x * 0.7}px, ${y * 0.45}px, 0)`;
-        }
-        if (firefliesContainer) {
-          firefliesContainer.style.transform = `translate3d(${x * 0.45}px, ${y * 0.3}px, 0)`;
-        }
-        if (bigEyeLayer) {
-          bigEyeLayer.style.transform = `translate3d(${x * 0.9}px, ${y * 0.6}px, 0)`;
-        }
-        if (footstepLayer) {
-          footstepLayer.style.transform = `translate3d(${x * 0.2}px, ${y * 0.1}px, 0)`;
-        }
-        if (silhouetteLayer) {
-          silhouetteLayer.style.transform = `translate3d(${x * 0.25}px, ${y * 0.12}px, 0)`;
-        }
-
-        updateEyePupils(xNorm, yNorm);
-      }
-
-      function updateEyePupils(xNorm, yNorm) {
-        const pupils = document.querySelectorAll(".forest-eye-pupil");
-        const maxOffset = isMobile ? 2.2 : 3;
-        const offsetX = xNorm * maxOffset;
-        const offsetY = yNorm * maxOffset;
-        pupils.forEach(p => {
-          p.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
-        });
-      }
-
-      let gyroActive = false;
-      const supportsDeviceOrientation = "DeviceOrientationEvent" in window;
-
-      document.addEventListener("pointermove", (evt) => {
-        if (gyroActive && isMobile) return;
-        const xNorm = (evt.clientX / window.innerWidth) * 2 - 1;
-        const yNorm = (evt.clientY / window.innerHeight) * 2 - 1;
-        applyParallax(xNorm, yNorm);
-      });
-
-      if (supportsDeviceOrientation && isMobile) {
-        window.addEventListener("deviceorientation", (event) => {
-          if (event.beta == null || event.gamma == null) return;
-          gyroActive = true;
-
-          const gamma = Math.max(-45, Math.min(45, event.gamma || 0));
-          const beta = Math.max(-45, Math.min(45, event.beta || 0));
-
-          const xNorm = gamma / 20;
-          const yNorm = beta / 25;
-
-          const xClamped = Math.max(-1.2, Math.min(1.2, xNorm));
-          const yClamped = Math.max(-1.0, Math.min(1.0, yNorm));
-
-          applyParallax(xClamped, yClamped);
-        });
-      }
-
-      scareSlider.addEventListener("input", () => {
-        scareLevel = parseInt(scareSlider.value, 10) || 0;
-        updateScareClasses();
-        if (body.classList.contains("power-off")) {
-          setAmbient(true);
-          setWhispers(true);
-        }
-      });
 
       leverButton.addEventListener("click", () => {
-        const now = (window.performance && performance.now) ? performance.now() : Date.now();
-        if (now - lastToggleTime < COOLDOWN) {
-          showToast("The fog control resists your fidgeting.");
+        const now = performance.now ? performance.now() : Date.now();
+        if (now - lastToggleTime < COOLDOWN_MS) {
+          showToast("The control resists being flicked that fast.");
           return;
         }
         lastToggleTime = now;
 
         if (isOn) {
           offCount++;
-          depth++;
           updateHint();
-          updateDepthLine();
-          regenerateEyes();
-
-          const intenseLevel = scareLevel;
-
-          if (scareLevel === 3) {
-            if (now - lastOffTime < 9000) {
-              secretStreak++;
-            } else {
-              secretStreak = 1;
-            }
-            lastOffTime = now;
-          } else {
-            secretStreak = 0;
-          }
-
-          let rareChance = 0.15 + 0.15 * intenseLevel;
-          if (intenseLevel === 3 && secretStreak >= 3) {
-            rareChance = 0.9;
-          }
-          const isRare = Math.random() < rareChance;
-
           setLeverState(false);
-          maybeTriggerBigGlitchOnBlackout();
-
-          if (intenseLevel > 0) {
-            triggerFogPulse();
-          }
-          scheduleMischief(isRare, intenseLevel);
+          regenerateEyes();     // new layout each blackout
+          scheduleAutoOn();
         } else {
           setLeverState(true);
           if (mischiefTimeout) clearTimeout(mischiefTimeout);
-          if (bigEyeTimeout) clearTimeout(bigEyeTimeout);
         }
       });
 
-      updateScareClasses();
-      regenerateEyes();
-      createFireflies(isMobile ? 12 : 24);
-      createFootsteps(isMobile ? 3 : 4);
-      createLeaves(isMobile ? 4 : 8);
+      scareSlider.addEventListener("input", () => {
+        scareLevel = parseInt(scareSlider.value, 10) || 0;
+        updateScareLabel();
+        body.classList.remove("scare-0", "scare-1", "scare-2", "scare-3");
+        body.classList.add("scare-" + scareLevel);
+
+        if (!isOn) {
+          regenerateEyes();
+        }
+      });
+
+      // --- Gyroscope parallax (eyes + fog) ---
+      function handleOrientation(event) {
+        const gamma = event.gamma || 0; // left/right tilt
+        const beta = event.beta || 0;   // front/back tilt
+
+        // clamp to [-45, 45]
+        const clamp = (v) => Math.max(-45, Math.min(45, v));
+
+        const g = clamp(gamma);
+        const b = clamp(beta);
+
+        const maxShift = 14; // px
+        const x = (g / 45) * maxShift;
+        const y = (b / 45) * maxShift;
+
+        if (eyesLayer) {
+          eyesLayer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        }
+        if (fogLayer) {
+          fogLayer.style.transform = `translate3d(${x * 0.6}px, ${y * 0.6}px, 0)`;
+        }
+      }
+
+      if (window.DeviceOrientationEvent) {
+        // iOS 13+ might require permission; if not requested, this still safely fails
+        window.addEventListener("deviceorientation", handleOrientation, true);
+      }
+
+      // initial state
+      scareLevel = 0;
+      updateScareLabel();
       setLeverState(true, true);
-      updateDepthLine();
     })();
   </script>
 </body>
