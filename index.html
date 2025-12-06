@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eyes See You - Final Fix</title>
+  <title>Eyes See You - Final Stable</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,10 +66,11 @@
       mix-blend-mode: multiply; opacity: 1;
     }
 
+    /* --- LAYERING FIX --- */
     .shaker-wrapper {
       position: fixed; inset: -10%; width: 120%; height: 120%;
       pointer-events: none; 
-      z-index: 20; 
+      z-index: 20; /* Behind Menu (60) */
       will-change: transform;
     }
 
@@ -81,7 +82,7 @@
 
     .eyes-layer { 
       position: absolute; inset: 0; opacity: 0; 
-      transition: opacity 1.5s ease-in-out; 
+      transition: opacity 1.5s ease-in-out; /* Smooth fade in */
       pointer-events: none; 
     }
     .shaker-wrapper.show .eyes-layer { opacity: 1; }
@@ -90,7 +91,10 @@
       position: absolute; display: flex; gap: 12px; align-items: center; justify-content: center;
       opacity: 0; animation: floatEyes 4s ease-in-out infinite;
       transition: opacity 0.3s;
-      pointer-events: auto; padding: 40px; margin: -40px; z-index: 100;
+      
+      pointer-events: auto; 
+      padding: 40px; margin: -40px; /* Large Hitbox */
+      z-index: 100;
     }
     .shaker-wrapper.show .forest-eyes-pair { opacity: 1; transition: opacity 0.5s ease 0.2s; }
 
@@ -125,11 +129,19 @@
       background: var(--ui-bg); border: 4px solid var(--ui-border);
       box-shadow: 12px 12px 0 rgba(0,0,0,0.8);
       border-radius: 4px; padding: 1.5rem 1.2rem;
-      position: relative; z-index: 60;
+      position: relative; 
+      z-index: 60; /* Top Layer */
       transition: opacity 1.2s ease, filter 0.5s ease;
     }
-    .scene.power-off { opacity: 0; filter: grayscale(1); pointer-events: none; }
-    .scene.power-off.woken { opacity: 1; filter: grayscale(0); pointer-events: auto; }
+    
+    .scene.power-off { 
+      opacity: 0; 
+      filter: grayscale(1); 
+      pointer-events: none; /* Pass clicks to eyes */
+    }
+    .scene.power-off.woken { 
+      opacity: 1; filter: grayscale(0); pointer-events: auto; 
+    }
 
     .scene-header { 
       text-align: center; margin-bottom: 1.5rem; color: #78716c; 
@@ -261,9 +273,10 @@
   <div class="crt-overlay"></div>
   <div id="blinkOverlay" class="blink-overlay"></div>
 
+  <!-- Reverted Splash Screen -->
   <div id="splashScreen" class="splash-screen">
     <div class="splash-content">
-      <h1 style="font-family: 'Nosifer'; color: #ef4444; margin-bottom: 30px;">EYES SEE YOU</h1>
+      <h1>Eyes See You</h1>
       <div class="splash-icons">
         <div class="icon-group"><span>🎧</span>Headphones</div>
         <div class="icon-group"><span>📱</span>Vertical</div>
@@ -326,6 +339,7 @@
 
   <script>
     (function() {
+      // Configuration
       const isMobile = window.innerWidth <= 600;
       const config = { backEyes: isMobile ? 12 : 25, frontEyes: isMobile ? 8 : 16 };
       const glitchWords = ["SEEN", "RUN", "HIDE", "FOUND", "BEHIND", "CLOSE", "NO ESCAPE", "DON'T LOOK", "IT SEES"];
@@ -344,7 +358,8 @@
         micEnabled: false,
         lastMoveTime: Date.now(),
         corruption: 0,
-        isDead: false
+        isDead: false,
+        isResetting: false // Debounce flag for rapid touches
       };
       
       let resetTimeout = null;
@@ -494,13 +509,17 @@
           });
           el.addEventListener('touchstart', (e) => {
              e.stopPropagation();
+             e.preventDefault(); // Prevents double-fire from click emulation
              if(!state.on && !state.isDead) forceReset("TOUCH");
           }, {passive: false});
         });
       }
 
       function forceReset(reason) {
-        if(state.on || state.isDead) return;
+        // DEBOUNCE: Ignore input if we are already resetting
+        if(state.on || state.isDead || state.isResetting) return;
+        state.isResetting = true; // LOCK
+
         els.glitchText.textContent = glitchWords[Math.floor(Math.random() * glitchWords.length)];
         playSound(800, 'sawtooth', 0.2, 0.3);
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
@@ -508,8 +527,13 @@
         applyCorruption();
         if(resetTimeout) clearTimeout(resetTimeout);
         if(resetAnimation) cancelAnimationFrame(resetAnimation);
+        
         setTimeout(() => {
-          if(!state.isDead) { togglePower(); els.glitch.classList.remove('active'); }
+          if(!state.isDead) { 
+            togglePower(); 
+            els.glitch.classList.remove('active'); 
+            state.isResetting = false; // UNLOCK
+          }
         }, 300);
       }
       
@@ -692,29 +716,21 @@
       });
 
       function handleOrientation(e) {
-        // Safety check for null gamma/beta on some devices/permissions
-        if (e.gamma === null || e.beta === null) return;
-
-        // Upright calibration: subtract 60 from beta
-        let x = (e.gamma || 0) / 25;
-        let y = ((e.beta || 0) - 60) / 25;
-
+        if(e.gamma == null) return;
+        let x = e.gamma / 25;
+        let y = (e.beta - 60) / 25;
         x = Math.max(-1.5, Math.min(1.5, x));
         y = Math.max(-1.5, Math.min(1.5, y));
-        
-        state.targetX = x; 
-        state.targetY = y;
+        state.targetX = x; state.targetY = y;
         state.lastMoveTime = Date.now(); 
         els.parallax.classList.remove('zooming');
       }
       
-      // Mouse move fallback
       window.addEventListener('mousemove', e => {
         state.targetX = (e.clientX / window.innerWidth - 0.5) * 2;
         state.targetY = (e.clientY / window.innerHeight - 0.5) * 2;
       });
       
-      // Touch drag fallback (for non-gyro devices)
       window.addEventListener('touchmove', e => {
         if (e.touches.length > 0) {
             const t = e.touches[0];
@@ -724,11 +740,8 @@
       }, {passive: true});
 
       function loop() {
-        // Smooth Lerp
         state.currentX += (state.targetX - state.currentX) * 0.1;
         state.currentY += (state.targetY - state.currentY) * 0.1;
-        
-        // Move Background
         els.parallax.style.transform = `translate3d(${state.currentX * 20}px, ${state.currentY * 12}px, 0)`;
         
         if(!state.on) {
@@ -744,8 +757,7 @@
              if((sum / micDataArray.length) > 40) forceReset("NOISE");
            }
 
-           // High Performance CSS Variable Update
-           const xPx = state.currentX * 6; 
+           const xPx = state.currentX * 6;
            const yPx = state.currentY * 6;
            document.documentElement.style.setProperty('--look-x', xPx + 'px');
            document.documentElement.style.setProperty('--look-y', yPx + 'px');
