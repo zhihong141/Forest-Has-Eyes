@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eyes See You - Final</title>
+  <title>Eyes See You - Optimized Core</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <!-- Fonts -->
@@ -12,12 +12,10 @@
 
   <style>
     :root {
-      /* Deep Amber/Brown Gradient */
       --bg-on: linear-gradient(to bottom, #2b1d0e 0%, #1a0f05 45%, #000000 100%);
       --bg-off: #000000;
       --halftone: radial-gradient(circle, rgba(0,0,0,0.35) 1.5px, transparent 2px);
       
-      /* UI Colors */
       --ui-bg: #1c1917;
       --ui-border: #000;
       --hazard-yellow: #eab308;
@@ -25,7 +23,7 @@
       --term-green: #22c55e;
       --term-red: #ef4444;
 
-      /* CSS Variables for High Performance Animation */
+      /* CSS Variables for Performance (Updated by JS) */
       --look-x: 0px;
       --look-y: 0px;
     }
@@ -47,7 +45,7 @@
       touch-action: none; user-select: none;
     }
 
-    /* Vignette Breathing */
+    /* Vignette - Optimized with GPU hint */
     body::before {
       content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 8000;
       background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 90%);
@@ -63,7 +61,7 @@
     body.corrupted-1 { background-image: linear-gradient(to bottom, #1a1010 0%, #0d0505 45%, #000000 100%); }
     body.corrupted-2 { background-image: linear-gradient(to bottom, #2b0a0a 0%, #1a0505 45%, #000000 100%); }
 
-    /* CRT Overlay */
+    /* CRT Overlay - Simplified for Mobile Performance */
     .crt-overlay {
       position: fixed; inset: 0; pointer-events: none; z-index: 9998;
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
@@ -84,23 +82,23 @@
     .parallax-layer.zooming { transition: transform 5s ease-in; transform: scale(1.4) !important; }
 
     .eyes-layer { position: absolute; inset: 0; opacity: 0; transition: opacity 0.2s; }
-    
-    /* CHANGED: Z-Index is now 20. This puts eyes BEHIND the menu (z-index 60) */
-    .shaker-wrapper.show .eyes-layer { opacity: 1; z-index: 20; pointer-events: auto; }
+    /* Z-INDEX TRICK: When shown, eyes are above EVERYTHING (z-index 50) except overlays */
+    .shaker-wrapper.show .eyes-layer { opacity: 1; z-index: 50; pointer-events: auto; }
 
     /* Eyes */
     .forest-eyes-pair {
       position: absolute; display: flex; gap: 12px; align-items: center; justify-content: center;
       opacity: 0; animation: floatEyes 4s ease-in-out infinite;
       transition: opacity 0.3s;
-      pointer-events: auto;
-      padding: 15px; /* Hitbox */
+      pointer-events: auto; /* Crucial for clicking */
+      padding: 15px; /* Larger hit area */
     }
     .shaker-wrapper.show .forest-eyes-pair { opacity: 1; transition: opacity 0.5s ease 0.2s; }
 
     .forest-eye {
       position: relative; width: 24px; height: 24px; border-radius: 50%;
       background: radial-gradient(circle at 50% 50%, #fbbf24 0%, #b45309 60%, #78350f 100%);
+      /* Reduced shadow radius for performance */
       box-shadow: 0 0 5px rgba(251, 191, 36, 0.6);
       overflow: hidden; animation: blinkEye 4s infinite;
     }
@@ -112,7 +110,7 @@
     .forest-eye-pupil {
       position: absolute; width: 6px; height: 16px; background: #000; border-radius: 50%;
       left: 50%; top: 50%;
-      /* Optimized movement via CSS Variables */
+      /* GPU ACCELERATED MOVEMENT using CSS Variables */
       transform: translate(calc(-50% + var(--look-x)), calc(-50% + var(--look-y)));
       will-change: transform;
     }
@@ -131,15 +129,10 @@
       background: var(--ui-bg); border: 4px solid var(--ui-border);
       box-shadow: 12px 12px 0 rgba(0,0,0,0.8);
       border-radius: 4px; padding: 1.5rem 1.2rem;
-      position: relative; 
-      
-      /* CHANGED: Z-Index 60 places Menu physically ON TOP of Eyes (z-20) */
-      z-index: 60;
-      
+      position: relative; z-index: 10;
       transition: opacity 0.5s ease, filter 0.5s ease;
     }
     
-    /* When faded out, pointer-events: none lets clicks pass THROUGH the menu to the eyes below */
     .scene.power-off { 
       opacity: 0; filter: grayscale(1); pointer-events: none; 
     }
@@ -211,7 +204,6 @@
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none; width: 24px; height: 24px; background: #d6d3d1; 
       border: 3px solid #000; box-shadow: 2px 2px 0 #000;
-      cursor: grab;
     }
     .reset-bar {
       width: 0%; height: 4px; background: #ef4444; margin-top: 8px; 
@@ -282,25 +274,15 @@
   <div class="crt-overlay"></div>
   <div id="blinkOverlay" class="blink-overlay"></div>
 
-  <!-- Reverted Splash Screen -->
   <div id="splashScreen" class="splash-screen">
     <div class="splash-content">
-      <h1>Eyes See You</h1>
+      <h1 style="font-family: 'Nosifer'; color: #ef4444; margin-bottom: 30px;">EYES SEE YOU</h1>
       <div class="splash-icons">
-        <div class="icon-group">
-          <span>🎧</span>
-          <p>Headphones<br>Required</p>
-        </div>
-        <div class="icon-group">
-          <span>📱</span>
-          <p>Hold<br>Upright</p>
-        </div>
-        <div class="icon-group">
-          <span>👆</span>
-          <p>Tap Screen<br>To Show/Hide Controls</p>
-        </div>
+        <div class="icon-group"><span>🎧</span>Headphones</div>
+        <div class="icon-group"><span>📱</span>Vertical</div>
+        <div class="icon-group"><span>🎤</span>Mic On</div>
       </div>
-      <button id="startBtn" class="start-btn">ENTER THE DARK</button>
+      <button id="startBtn" class="start-btn">INITIALIZE</button>
     </div>
   </div>
   
@@ -393,7 +375,6 @@
       let wakeTimeout = null;
       let textScrambleInterval = null;
       let scareTimeouts = [];
-      let cachedPupils = [];
 
       const els = {
         body: document.body,
@@ -529,9 +510,6 @@
         createEyes(els.eyesBack, config.backEyes, false);
         createEyes(els.eyesFront, config.frontEyes, true);
         
-        // Cache pupils for loop optimization
-        cachedPupils = Array.from(document.querySelectorAll('.forest-eye-pupil'));
-        
         // Add click listener to eyes that STOPS propagation (prevents menu wake)
         document.querySelectorAll('.forest-eyes-pair').forEach(el => {
           el.addEventListener('click', (e) => {
@@ -616,6 +594,7 @@
         els.scene.classList.toggle('power-off', !state.on);
         
         if(!state.on) {
+           // On turn OFF: Wait 1.5s then hide menu (add wake listener)
            els.scene.classList.add('woken');
            if(wakeTimeout) clearTimeout(wakeTimeout);
            wakeTimeout = setTimeout(() => els.scene.classList.remove('woken'), 1500);
