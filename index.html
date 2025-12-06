@@ -169,18 +169,30 @@
       box-shadow: 8px 8px 0px #000;
       border-radius: 12px; padding: 1.5rem 1.2rem;
       position: relative; z-index: 10;
-      transition: opacity 0.5s ease, transform 0.3s ease;
+      transition: opacity 1s ease, transform 0.3s ease, filter 1s ease;
       will-change: opacity, transform;
     }
     
+    /* FADE LOGIC FIXES */
     .scene.power-off {
       opacity: 0.15;
-      pointer-events: none;
       filter: grayscale(1);
-    }
-    .scene.power-off:hover, .scene.power-off:active {
-      opacity: 1;
+      /* Changed to auto so user can tap to wake */
       pointer-events: auto;
+    }
+    
+    /* Only allow hover wake on non-touch devices to prevent sticky hover on mobile */
+    @media (hover: hover) {
+      .scene.power-off:hover {
+        opacity: 1;
+        filter: grayscale(0);
+      }
+    }
+    
+    /* Class for JS-triggered wake (Mobile tap) */
+    .scene.power-off.woken {
+      opacity: 1;
+      filter: grayscale(0);
     }
     
     .scene::after {
@@ -483,6 +495,7 @@
       let breathingGain = null;
       let tensionOsc = null; // Rising pitch
       let tensionGain = null;
+      let wakeTimeout = null;
 
       // New fake Popups
       const fakePopups = [
@@ -740,8 +753,10 @@
       }
 
       // --- MAIN LOGIC ---
-      function togglePower() {
+      function togglePower(e) {
         if(state.isDead) return;
+        if (e && e.stopPropagation) e.stopPropagation(); // Stop bubble to scene click
+        
         if(resetTimeout) clearTimeout(resetTimeout);
         if(resetAnimation) cancelAnimationFrame(resetAnimation);
 
@@ -749,6 +764,8 @@
         
         // UI
         els.leverBtn.className = state.on ? 'lever-button on' : 'lever-button off';
+        els.leverBtn.blur(); // Remove focus to fix sticky hover on mobile
+        
         // Only reset secure text if corruption is low
         if(state.corruption < 4) {
              els.statusText.innerHTML = state.on ? 'Status: <strong>SECURE</strong>' : 'Status: <strong>BREACHED</strong>';
@@ -756,6 +773,10 @@
         
         els.body.classList.toggle('power-off', !state.on);
         els.scene.classList.toggle('power-off', !state.on);
+        
+        // Ensure wake class is removed when turning OFF so it starts faded
+        if(!state.on) els.scene.classList.remove('woken');
+        
         els.shaker.classList.toggle('show', !state.on);
         els.parallax.classList.remove('zooming'); 
 
@@ -779,6 +800,15 @@
           els.fakeNotif.classList.remove('show');
         }
       }
+      
+      // Tap to Wake listener
+      els.scene.addEventListener('click', () => {
+        if(!state.on && !state.isDead) {
+           els.scene.classList.add('woken');
+           if(wakeTimeout) clearTimeout(wakeTimeout);
+           wakeTimeout = setTimeout(() => els.scene.classList.remove('woken'), 2000);
+        }
+      });
 
       // --- AUTO RESET + HEARTBEAT + RISING AUDIO ---
       function startAutoResetTimer() {
