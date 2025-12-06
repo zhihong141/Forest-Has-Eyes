@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eyes See You - Final Version</title>
+  <title>Eyes See You - Final</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <!-- Fonts -->
@@ -205,6 +205,7 @@
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none; width: 24px; height: 24px; background: #d6d3d1; 
       border: 3px solid #000; box-shadow: 2px 2px 0 #000;
+      cursor: grab;
     }
     .reset-bar {
       width: 0%; height: 4px; background: #ef4444; margin-top: 8px; 
@@ -275,15 +276,25 @@
   <div class="crt-overlay"></div>
   <div id="blinkOverlay" class="blink-overlay"></div>
 
+  <!-- Reverted Splash Screen -->
   <div id="splashScreen" class="splash-screen">
     <div class="splash-content">
-      <h1 style="font-family: 'Nosifer'; color: #ef4444; margin-bottom: 30px;">EYES SEE YOU</h1>
+      <h1>Eyes See You</h1>
       <div class="splash-icons">
-        <div class="icon-group"><span>🎧</span>Headphones</div>
-        <div class="icon-group"><span>📱</span>Vertical</div>
-        <div class="icon-group"><span>🎤</span>Mic On</div>
+        <div class="icon-group">
+          <span>🎧</span>
+          <p>Headphones<br>Required</p>
+        </div>
+        <div class="icon-group">
+          <span>📱</span>
+          <p>Hold<br>Upright</p>
+        </div>
+        <div class="icon-group">
+          <span>👆</span>
+          <p>Tap Screen<br>To Show/Hide Controls</p>
+        </div>
       </div>
-      <button id="startBtn" class="start-btn">INITIALIZE</button>
+      <button id="startBtn" class="start-btn">ENTER THE DARK</button>
     </div>
   </div>
   
@@ -375,10 +386,8 @@
       let tensionGain = null;
       let wakeTimeout = null;
       let textScrambleInterval = null;
-      
-      // Optimization: Cache pupil elements
-      let cachedPupils = [];
       let scareTimeouts = [];
+      let cachedPupils = [];
 
       const els = {
         body: document.body,
@@ -606,8 +615,10 @@
            if(wakeTimeout) clearTimeout(wakeTimeout);
            wakeTimeout = setTimeout(() => els.scene.classList.remove('woken'), 1500);
         } else {
-           els.scene.classList.add('woken');
-           scareTimeouts.forEach(t => clearTimeout(t)); scareTimeouts = [];
+           els.scene.classList.add('woken'); // Make sure it's visible when ON
+           // Cleanup scares
+           scareTimeouts.forEach(t => clearTimeout(t));
+           scareTimeouts = [];
         }
         
         els.shaker.classList.toggle('show', !state.on);
@@ -617,14 +628,18 @@
         if (navigator.vibrate) navigator.vibrate(30);
 
         if (!state.on) {
+          // OFF
+          // Start breathing modulation
+          // Note: Breathing rhythm is handled in loop(), this just sets base volume
           if(breathingGain) breathingGain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 1);
-          if(tensionGain) tensionGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+          if(tensionGain) tensionGain.gain.setValueAtTime(0.02, audioCtx.currentTime); // Start tension sound
           regenEyes();
           triggerScareLogic();
           startAutoResetTimer();
         } else {
+          // ON
           if(breathingGain) breathingGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-          if(tensionGain) tensionGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+          if(tensionGain) tensionGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2); // Kill tension sound
           els.glitch.classList.remove('active');
           els.bigEye.innerHTML = '';
           els.resetBar.style.width = '0%';
@@ -666,13 +681,17 @@
           const pct = Math.min((elapsed / duration) * 100, 100);
           els.resetBar.style.width = pct + '%';
           
+          // Rising Pitch Audio
           if(tensionOsc) {
+              // Map percentage 0-100 to freq 100Hz-400Hz
               const freq = 100 + (pct * 3); 
               tensionOsc.frequency.setValueAtTime(freq, audioCtx.currentTime);
           }
           
+          // Heartbeat Haptics logic
           const progress = elapsed / duration;
           const beatInterval = 1000 - (progress * 800); 
+          
           if(now > nextBeat) {
             if (navigator.vibrate) navigator.vibrate(10 + (progress * 40)); 
             nextBeat = now + beatInterval;
@@ -697,6 +716,7 @@
         const level = state.scareLevel;
         if(level === 0) return;
 
+        // Random Blinks
         if(Math.random() > 0.7) {
             let t = setTimeout(() => {
                els.blinkOverlay.classList.add('active');
@@ -708,6 +728,7 @@
             scareTimeouts.push(t);
         }
 
+        // Big Eye
         if(level >= 1 && Math.random() > 0.6) {
            let t = setTimeout(() => {
              if(state.on || state.isDead) return;
@@ -719,6 +740,7 @@
            scareTimeouts.push(t);
         }
         
+        // Fake Notification
         if(level >= 2 && Math.random() > 0.75) {
            let t = setTimeout(() => {
              if(state.on || state.isDead) return;
@@ -807,4 +829,5 @@
   </script>
 </body>
 </html>
+
 
