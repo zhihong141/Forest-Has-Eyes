@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eyes See You - True Horror</title>
+  <title>Eyes See You - Optimized</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-
+  
   <!-- Import Horror Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,9 +17,9 @@
       /* CHANGED: Deep Amber/Brown Gradient to match the eyes */
       --bg-on: linear-gradient(to bottom, #2b1d0e 0%, #1a0f05 45%, #000000 100%);
       --bg-off: #000000;
-
+      
       --halftone: radial-gradient(circle, rgba(0,0,0,0.35) 1.5px, transparent 2px);
-
+      
       /* UI Palette */
       --ui-bg: #1c1917;
       --ui-border: #000;
@@ -38,18 +38,18 @@
 
     body {
       font-family: 'Share Tech Mono', 'Courier New', monospace;
-      height: 100dvh;
+      height: 100dvh; 
       width: 100vw;
       display: flex;
       align-items: flex-start;
       justify-content: center;
-
+      
       background-image: var(--bg-on);
       background-color: #000000;
       background-attachment: fixed;
       background-size: cover;
       background-repeat: no-repeat;
-
+      
       color: #f9fafb;
       padding-top: 10vh;
       overflow: hidden;
@@ -64,8 +64,9 @@
       position: fixed; inset: 0; pointer-events: none; z-index: 8000;
       background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 90%);
       animation: breatheDarkness 6s ease-in-out infinite;
+      will-change: transform, opacity; /* Optimized for GPU */
     }
-
+    
     @keyframes breatheDarkness {
       0%, 100% { opacity: 0.7; transform: scale(1); }
       50% { opacity: 0.9; transform: scale(1.05); }
@@ -75,7 +76,7 @@
       background-image: none;
       background-color: var(--bg-off);
     }
-
+    
     /* Progressive Corruption: Redder background */
     body.corrupted-1 { background-image: linear-gradient(to bottom, #1a1010 0%, #0d0505 45%, #000000 100%); }
     body.corrupted-2 { background-image: linear-gradient(to bottom, #2b0a0a 0%, #1a0505 45%, #000000 100%); }
@@ -83,21 +84,22 @@
     /* --- CRT SCANLINE FILTER (STRONGER) --- */
     .crt-overlay {
       position: fixed; inset: 0; pointer-events: none; z-index: 9998;
-      background:
-        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+      background: 
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
         linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
       background-size: 100% 4px, 6px 100%;
       box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
       mix-blend-mode: multiply;
       opacity: 1;
-      animation: scanlineRoll 10s linear infinite;
+      /* Optimized animation - removed it to save mobile GPU, static is usually enough and cheaper */
+      /* animation: scanlineRoll 10s linear infinite; */ 
     }
-
+    
     @keyframes scanlineRoll {
       0% { background-position: 0 0; }
       100% { background-position: 0 100%; }
     }
-
+    
     /* --- BLINK OVERLAY --- */
     .blink-overlay {
       position: fixed; inset: 0; background: #000; z-index: 10000;
@@ -130,13 +132,13 @@
     body.power-off.scare-1 .shaker-wrapper { animation: jitter 0.2s infinite steps(2); }
     body.power-off.scare-2 .shaker-wrapper { animation: jitter 0.1s infinite steps(4); }
     body.power-off.scare-3 .shaker-wrapper { animation: earthquake 0.1s infinite linear; }
-
+    
     /* --- PARALLAX & LAYERS --- */
-    .parallax-layer {
-      position: absolute; inset: 0; width: 100%; height: 100%; will-change: transform;
+    .parallax-layer { 
+      position: absolute; inset: 0; width: 100%; height: 100%; will-change: transform; 
       transition: transform 0.1s ease-out;
     }
-
+    
     /* Weeping Angel Zoom Effect */
     .parallax-layer.zooming {
       transition: transform 5s ease-in;
@@ -149,7 +151,7 @@
     }
     .fog-back {
       background-image: radial-gradient(circle at 50% 50%, rgba(20, 50, 40, 0.5) 0%, transparent 70%);
-      background-size: 4px 4px;
+      background-size: 4px 4px; 
     }
     .shaker-wrapper.show .fog-layer { opacity: 1; }
 
@@ -176,7 +178,7 @@
       overflow: hidden;
       animation: blinkEye 4s infinite;
     }
-
+    
     /* Glossy Reflection */
     .forest-eye::after {
       content: ""; position: absolute; top: 20%; left: 20%;
@@ -184,7 +186,7 @@
       background: rgba(255,255,255,0.7);
       filter: blur(1px);
     }
-
+    
     .forest-eye-pupil {
       position: absolute;
       width: 6px; height: 16px; /* Vertical slit pupil */
@@ -193,6 +195,7 @@
       left: 50%; top: 50%;
       transform: translate(-50%, -50%);
       box-shadow: 0 0 2px rgba(0,0,0,0.8);
+      will-change: transform; /* Hint for browser */
     }
 
     /* Evil Red Eye Variant */
@@ -217,11 +220,11 @@
       transition: opacity 0.5s ease, transform 0.3s ease, filter 0.5s ease;
       will-change: opacity, transform;
     }
-
+    
     /* Screws in corners */
     .scene::before, .scene::after {
       content: "+"; position: absolute; color: #444; font-weight: 900; font-size: 1.2rem;
-      top: 6px;
+      top: 6px; 
     }
     .scene::before { left: 8px; }
     .scene::after { right: 8px; }
@@ -232,21 +235,27 @@
       filter: grayscale(1);
       pointer-events: none; /* Touches pass through to background */
     }
-
+    
     /* Specific class to show menu when power is off */
     .scene.power-off.woken {
       opacity: 1;
       filter: grayscale(0);
       pointer-events: auto; /* Re-enable interaction */
     }
+    
+    .scene::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background-image: var(--halftone); background-size: 6px 6px;
+      opacity: 0.15; border-radius: 8px;
+    }
 
-    .scene-header {
-      text-align: center; margin-bottom: 1.5rem;
+    .scene-header { 
+      text-align: center; margin-bottom: 1.5rem; 
       color: #78716c; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
       text-shadow: 1px 1px 0 #000;
       border-bottom: 2px solid #333; padding-bottom: 10px;
     }
-
+    
     /* SCREW BUTTON (HIDE UI) */
     .hide-ui-btn {
       position: absolute; top: 10px; right: 10px;
@@ -263,19 +272,19 @@
 
     /* --- LEVER (HAZARD SWITCH) --- */
     .lever-area {
-      position: relative;
-      background: #292524;
+      position: relative; 
+      background: #292524; 
       border: 3px solid #000; border-radius: 6px;
       padding: 1.5rem 0; display: flex; flex-direction: column; align-items: center; gap: 1rem;
       box-shadow: inset 0 0 20px rgba(0,0,0,0.8); pointer-events: auto;
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-
+    
     /* Corruption rotation */
     .lever-area.corrupt-1 { transform: rotate(1deg); }
     .lever-area.corrupt-2 { transform: rotate(-2deg); }
     .lever-area.corrupt-3 { transform: rotate(2deg) translateY(2px); }
-
+    
     /* FALLEN STATE (The UI Falls Off) */
     .lever-area.fallen {
       transform: translateY(150vh) rotate(45deg) !important;
@@ -283,9 +292,9 @@
       pointer-events: none;
     }
 
-    .lever-wrapper {
-      position: relative; width: 180px; height: 120px;
-      display: flex; align-items: center; justify-content: center;
+    .lever-wrapper { 
+      position: relative; width: 180px; height: 120px; 
+      display: flex; align-items: center; justify-content: center; 
     }
 
     /* HAZARD STRIPES BASE */
@@ -301,7 +310,7 @@
       border: 3px solid #000; border-radius: 4px;
       box-shadow: 0 4px 0 rgba(0,0,0,1); z-index: 1;
     }
-
+    
     /* Screws on base */
     .lever-base::before, .lever-base::after {
       content: ""; position: absolute; top: 50%; transform: translateY(-50%);
@@ -313,7 +322,7 @@
 
     .lever-button {
       position: relative; width: 100%; height: 100%; background: transparent; border: none; outline: none; cursor: pointer;
-      transform-origin: center bottom;
+      transform-origin: center bottom; 
       transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 2;
     }
@@ -322,7 +331,7 @@
 
     .lever-stick {
       position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
-      width: 16px; height: 70px;
+      width: 16px; height: 70px; 
       background: linear-gradient(to right, #57534e, #a8a29e, #57534e); /* Metal stick */
       border: 3px solid #000; border-radius: 4px;
     }
@@ -335,28 +344,28 @@
       box-shadow: inset 4px 4px 0 rgba(255,255,255,0.2), inset -4px -4px 0 rgba(0,0,0,0.3), 4px 4px 0 #000;
       transition: background-color 0.1s;
     }
-
+    
     /* Grip lines on knob */
     .lever-knob::after {
-      content: ""; position: absolute; inset: 8px;
+      content: ""; position: absolute; inset: 8px; 
       background: repeating-linear-gradient(to bottom, transparent, transparent 4px, rgba(0,0,0,0.3) 4px, rgba(0,0,0,0.3) 6px);
     }
 
-    .lever-button.on .lever-knob {
+    .lever-button.on .lever-knob { 
       background-color: #22c55e; /* Safe Green */
       box-shadow: inset 4px 4px 0 rgba(255,255,255,0.3), inset -4px -4px 0 rgba(0,0,0,0.3), 4px 4px 0 #000;
     }
 
     /* --- VFD DISPLAY STATUS --- */
-    .status-display {
+    .status-display { 
       font-family: 'Share Tech Mono', monospace;
       font-size: 1rem; letter-spacing: 2px; color: var(--term-green);
-      text-transform: uppercase;
+      text-transform: uppercase; 
       background: #000; padding: 8px 12px; border: 2px solid #333; border-radius: 2px;
       box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.2); /* Inner glow */
       min-width: 200px; text-align: center;
     }
-    .status-text strong {
+    .status-text strong { 
       color: var(--term-green); text-shadow: 0 0 5px var(--term-green);
     }
     /* Dynamic class for scrambled text color */
@@ -365,15 +374,15 @@
     }
 
     .scare-slider-container { width: 90%; margin-top: 5px; }
-
+    
     /* INDUSTRIAL SLIDER */
-    input[type=range] {
-      width: 100%; height: 14px; background: #171717; border-radius: 99px; outline: none; -webkit-appearance: none;
-      border: 2px solid #444;
+    input[type=range] { 
+      width: 100%; height: 14px; background: #171717; border-radius: 99px; outline: none; -webkit-appearance: none; 
+      border: 2px solid #444; 
       background-image: repeating-linear-gradient(90deg, #333, #333 2px, transparent 2px, transparent 20px);
     }
     input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 24px; height: 24px; background: #d6d3d1;
+      -webkit-appearance: none; width: 24px; height: 24px; background: #d6d3d1; 
       border: 3px solid #000; border-radius: 2px; box-shadow: 2px 2px 0 #000;
       cursor: grab;
     }
@@ -383,7 +392,7 @@
       transition: width 0.1s linear;
       box-shadow: 0 0 10px #ef4444;
     }
-
+    
     /* --- ENDGAME SCREEN --- */
     .endgame-screen {
       position: fixed; inset: 0; background: #000; z-index: 9997; /* Below CRT */
@@ -392,23 +401,23 @@
       transition: opacity 2s ease-in;
     }
     .endgame-screen.show { opacity: 1; pointer-events: auto; }
-
+    
     .endgame-text {
       font-family: 'Nosifer', cursive;
-      font-size: 3rem;
-      color: #991b1b;
+      font-size: 3rem; 
+      color: #991b1b; 
       text-transform: uppercase; letter-spacing: 2px;
-      text-shadow: 2px 2px 0 #000, 0 0 20px #ff0000;
+      text-shadow: 2px 2px 0 #000, 0 0 20px #ff0000; 
       text-align: center;
       margin-top: 2rem; opacity: 0; transform: scale(0.9);
       transition: opacity 1s 1s ease-in, transform 1s 1s ease-out;
     }
     .endgame-screen.show .endgame-text { opacity: 1; transform: scale(1); }
-
+    
     .extreme-eye-pair {
       display: flex; gap: 20px; transform: scale(4); /* HUGE */
     }
-
+    
     /* --- OVERLAYS --- */
     .glitch-layer {
       position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -433,7 +442,7 @@
     .fake-notif.show { opacity: 1; pointer-events: auto; }
     .fake-notif h3 { margin: 15px 0 5px; font-size: 17px; color: #000; }
     .fake-notif p { margin: 0 0 15px; font-size: 13px; color: #000; }
-    .fake-notif-btn {
+    .fake-notif-btn { 
       border-top: 1px solid #ccc; padding: 12px; color: #007aff; font-weight: bold; cursor: pointer;
       font-size: 17px;
     }
@@ -445,7 +454,7 @@
       transition: opacity 0.8s ease, visibility 0.8s;
     }
     .splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
+    
     .splash-content {
       text-align: center; color: #f9fafb; padding: 20px; width: 100%; max-width: 400px;
     }
@@ -462,7 +471,7 @@
     }
     .icon-group span { font-size: 2rem; }
     .icon-group p { font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; line-height: 1.4; }
-
+    
     .start-btn {
       background: transparent; border: 2px solid #4ade80; color: #4ade80;
       padding: 12px 30px; font-family: 'Courier New', Courier, monospace;
@@ -477,7 +486,7 @@
 
   <!-- CRT OVERLAY -->
   <div class="crt-overlay"></div>
-
+  
   <!-- BLINK OVERLAY -->
   <div id="blinkOverlay" class="blink-overlay"></div>
 
@@ -502,7 +511,7 @@
       <button id="startBtn" class="start-btn">ENTER THE DARK</button>
     </div>
   </div>
-
+  
   <!-- ENDGAME SCREEN -->
   <div id="endgameScreen" class="endgame-screen">
     <div class="extreme-eye-pair">
@@ -524,7 +533,7 @@
   <div id="glitchLayer" class="glitch-layer">
     <span class="glitch-text">SEEN</span>
   </div>
-
+  
   <div id="fakeNotif" class="fake-notif">
     <h3 id="fakeNotifTitle">Notification</h3>
     <p id="fakeNotifText">Details</p>
@@ -561,7 +570,7 @@
     (function() {
       const isMobile = window.innerWidth <= 600;
       const config = { backEyes: isMobile ? 18 : 35, frontEyes: isMobile ? 12 : 22 };
-
+      
       const glitchWords = ["SEEN", "RUN", "HIDE", "FOUND", "BEHIND", "THEY KNOW", "TOO LATE", "NOT ALONE", "WATCHING", "CLOSE", "NO ESCAPE", "DON'T LOOK", "IT SEES"];
 
       let state = {
@@ -574,7 +583,7 @@
         corruption: 0,
         isDead: false // Game Over State
       };
-
+      
       let resetTimeout = null;
       let resetAnimation = null;
       let audioCtx = null;
@@ -590,6 +599,10 @@
       let tensionGain = null;
       let wakeTimeout = null;
       let textScrambleInterval = null;
+      
+      // Optimization: Cache pupil elements
+      let cachedPupils = [];
+      let scareTimeouts = [];
 
       // New fake Popups
       const fakePopups = [
@@ -620,15 +633,15 @@
         scene: document.querySelector('.scene'),
         hideUiBtn: document.getElementById('hideUiBtn'),
         endgameScreen: document.getElementById('endgameScreen'),
-
+        
         // Popup Elements
         fakeNotif: document.getElementById('fakeNotif'),
         fakeNotifTitle: document.getElementById('fakeNotifTitle'),
         fakeNotifText: document.getElementById('fakeNotifText'),
         fakeNotifBtn: document.getElementById('fakeNotifBtn'),
-
+        
         blinkOverlay: document.getElementById('blinkOverlay'),
-
+        
         splash: document.getElementById('splashScreen'),
         startBtn: document.getElementById('startBtn')
       };
@@ -646,14 +659,14 @@
       // --- TEXT DECRYPTION EFFECT ---
       function scrambleText(element, finalWord, isAlert) {
         if(textScrambleInterval) clearInterval(textScrambleInterval);
-
+        
         // Change color state
         if(isAlert) els.statusText.classList.add('alert');
         else els.statusText.classList.remove('alert');
-
+        
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
         let iterations = 0;
-
+        
         textScrambleInterval = setInterval(() => {
           element.innerText = finalWord.split("")
             .map((letter, index) => {
@@ -661,18 +674,18 @@
               return chars[Math.floor(Math.random() * chars.length)]
             })
             .join("");
-
-          if(iterations >= finalWord.length) {
+          
+          if(iterations >= finalWord.length) { 
             clearInterval(textScrambleInterval);
           }
-
+          
           iterations += 1/3; // Speed
         }, 30);
       }
 
       // --- INITIALIZATION & PERMISSIONS ---
       els.startBtn.addEventListener('click', () => {
-        vibrate(200);
+        vibrate(200); 
         initAudio();
         requestGyroPermission();
         els.splash.classList.add('hidden');
@@ -713,15 +726,15 @@
         breathingOsc.loop = true;
         const filter = audioCtx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.value = 400;
+        filter.frequency.value = 400; 
         breathingGain = audioCtx.createGain();
-        breathingGain.gain.value = 0;
+        breathingGain.gain.value = 0; 
         breathingOsc.connect(filter);
         filter.connect(breathingGain);
         breathingGain.connect(panner);
         panner.connect(audioCtx.destination);
         breathingOsc.start();
-
+        
         // 2. Rising Tension Oscillator (Shepard-ish Riser)
         tensionOsc = audioCtx.createOscillator();
         tensionOsc.type = 'triangle';
@@ -731,7 +744,7 @@
         tensionOsc.connect(tensionGain);
         tensionGain.connect(audioCtx.destination);
         tensionOsc.start();
-
+        
         // 3. Dark Ambient Drone (Sub-bass)
         droneOsc1 = audioCtx.createOscillator();
         droneOsc1.type = 'sawtooth';
@@ -739,20 +752,20 @@
         droneOsc2 = audioCtx.createOscillator();
         droneOsc2.type = 'sawtooth';
         droneOsc2.frequency.value = 55.5; // Slight detune for phasing
-
+        
         droneGain = audioCtx.createGain();
         droneGain.gain.value = 0.05; // Always subtle background
-
+        
         // Filter the drone so it's not too harsh
         const droneFilter = audioCtx.createBiquadFilter();
         droneFilter.type = 'lowpass';
         droneFilter.frequency.value = 200;
-
+        
         droneOsc1.connect(droneFilter);
         droneOsc2.connect(droneFilter);
         droneFilter.connect(droneGain);
         droneGain.connect(audioCtx.destination);
-
+        
         droneOsc1.start();
         droneOsc2.start();
 
@@ -761,7 +774,7 @@
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           const source = audioCtx.createMediaStreamSource(stream);
           micAnalyser = audioCtx.createAnalyser();
-          micAnalyser.fftSize = 64;
+          micAnalyser.fftSize = 64; 
           micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
           source.connect(micAnalyser);
           state.micEnabled = true;
@@ -784,7 +797,7 @@
         osc.stop(audioCtx.currentTime + dur + 0.05);
       }
 
-      function vibrate(pattern) {
+      function vibrate(pattern) { 
         if (navigator.vibrate) {
           try { navigator.vibrate(pattern); } catch(e) { console.error("Vibration failed", e); }
         }
@@ -796,7 +809,7 @@
         setTimeout(() => {
           els.blinkOverlay.classList.remove('active');
           // When eyes open, move ghosts
-          if(!state.on) regenEyes();
+          if(!state.on) regenEyes(); 
         }, 150 + Math.random() * 100);
       }
 
@@ -810,7 +823,7 @@
           const scale = isFront ? (0.7 + Math.random() * 0.3) : (0.4 + Math.random() * 0.2);
           const isEvil = (state.scareLevel >= 2 && Math.random() < 0.4) || (state.scareLevel===3) ? 'evil-eye' : '';
           const delay = Math.random() * 4;
-
+          
           html += `<div class="forest-eyes-pair" data-action="touch-scare" style="top:${top}%; left:${left}%; transform:scale(${scale});">
               <div class="forest-eye ${isEvil}" style="animation-delay: ${delay}s"><div class="forest-eye-pupil"></div></div>
               <div class="forest-eye ${isEvil}" style="animation-delay: ${delay + 0.1}s"><div class="forest-eye-pupil"></div></div></div>`;
@@ -821,7 +834,10 @@
       function regenEyes() {
         createEyes(els.eyesBack, config.backEyes, false);
         createEyes(els.eyesFront, config.frontEyes, true);
-
+        
+        // Cache pupils for loop optimization
+        cachedPupils = Array.from(document.querySelectorAll('.forest-eye-pupil'));
+        
         document.querySelectorAll('.forest-eyes-pair').forEach(el => {
           el.addEventListener('click', (e) => {
             if(!state.on && !state.isDead) {
@@ -834,7 +850,7 @@
 
       function forceReset(reason) {
         if(state.on || state.isDead) return;
-
+        
         const word = glitchWords[Math.floor(Math.random() * glitchWords.length)];
         els.glitchText.textContent = word;
 
@@ -842,10 +858,10 @@
         vibrate([100, 50, 100]);
         els.glitch.classList.add('active');
         applyCorruption(); // Increase corruption
-
+        
         if(resetTimeout) clearTimeout(resetTimeout);
         if(resetAnimation) cancelAnimationFrame(resetAnimation);
-
+        
         setTimeout(() => {
           if(!state.isDead) {
             togglePower(); // Snap back
@@ -853,21 +869,21 @@
           }
         }, 300);
       }
-
+      
       function applyCorruption() {
         if (state.isDead) return;
         state.corruption++;
         const c = Math.min(state.corruption, 3);
-
+        
         // Tilt UI
         els.leverArea.classList.remove('corrupt-1', 'corrupt-2', 'corrupt-3');
         if (state.corruption > 2 && state.corruption < 25) els.leverArea.classList.add('corrupt-' + c);
-
+        
         // Background shift
         els.body.classList.remove('corrupted-1', 'corrupted-2');
         if (state.corruption > 5) els.body.classList.add('corrupted-1');
         if (state.corruption > 10) els.body.classList.add('corrupted-2');
-
+        
         // Status Text
         if (state.corruption > 4) {
              const statusWords = ["UNSTABLE", "FAILING", "CRITICAL", "LOOK OUT"];
@@ -875,37 +891,37 @@
              // Use scramble effect for corruption text too
              scrambleText(els.statusStrong, newStatus, true);
         }
-
+        
         // Intensify Audio Drone based on corruption
         if(droneGain && state.corruption > 0) {
             const intensity = 0.05 + (state.corruption * 0.01); // Get louder
             droneGain.gain.rampToValueAtTime(Math.min(intensity, 0.3), audioCtx.currentTime + 1);
         }
-
+        
         // --- ENDGAME TRIGGER ---
         if(state.corruption >= 25) {
            triggerEndgame();
         }
       }
-
+      
       function triggerEndgame() {
         state.isDead = true;
         // Make the lever panel fall
         els.leverArea.classList.add('fallen');
-
+        
         // Hide overlay UI
         els.scene.querySelector('.scene-header').style.opacity = 0;
         els.glitch.classList.remove('active'); // Ensure glitch is gone so we see the fall
-
+        
         // Play Crash Sound
         playSound(100, 'sawtooth', 1.5, 0.2);
         vibrate(500); // Long rumble
-
+        
         // Stop background noises
         if(breathingGain) breathingGain.gain.value = 0;
         if(tensionGain) tensionGain.gain.value = 0;
         if(droneGain) droneGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
-
+        
         // Show Eyes
         setTimeout(() => {
            els.endgameScreen.classList.add('show');
@@ -916,27 +932,27 @@
       // --- MAIN LOGIC ---
       function togglePower(e) {
         if(state.isDead) return;
-        if (e && e.stopPropagation) e.stopPropagation();
-
+        if (e && e.stopPropagation) e.stopPropagation(); 
+        
         if(resetTimeout) clearTimeout(resetTimeout);
         if(resetAnimation) cancelAnimationFrame(resetAnimation);
 
         state.on = !state.on;
-
+        
         // UI
         els.leverBtn.className = state.on ? 'lever-button on' : 'lever-button off';
         els.leverBtn.blur(); // Remove focus to fix sticky hover on mobile
-
+        
         // Only reset secure text if corruption is low
         if(state.corruption < 4) {
              const txt = state.on ? 'SECURE' : 'BREACHED';
              const isAlert = !state.on;
              scrambleText(els.statusStrong, txt, isAlert);
         }
-
+        
         els.body.classList.toggle('power-off', !state.on);
         els.scene.classList.toggle('power-off', !state.on);
-
+        
         // Ensure wake class is removed when turning OFF so it starts faded
         if(!state.on) {
            els.scene.classList.add('woken');
@@ -945,10 +961,13 @@
            wakeTimeout = setTimeout(() => els.scene.classList.remove('woken'), 1500);
         } else {
            els.scene.classList.add('woken'); // Make sure it's visible when ON
+           // Cleanup scares
+           scareTimeouts.forEach(t => clearTimeout(t));
+           scareTimeouts = [];
         }
-
+        
         els.shaker.classList.toggle('show', !state.on);
-        els.parallax.classList.remove('zooming');
+        els.parallax.classList.remove('zooming'); 
 
         playSound(state.on ? 400 : 150, 'square', 0.1);
         vibrate(30);
@@ -972,7 +991,7 @@
           els.fakeNotif.classList.remove('show');
         }
       }
-
+      
       // Tap to Wake / Toggle
       document.body.addEventListener('click', (e) => {
         // If menu is hidden (power off) and we aren't clicking a button/scene element
@@ -989,7 +1008,7 @@
             }
         }
       });
-
+      
       // Explicit Hide Button
       els.hideUiBtn.addEventListener('click', (e) => {
          e.stopPropagation();
@@ -1003,27 +1022,27 @@
         const duration = 6000 + Math.random() * 4000;
         const startTime = Date.now();
         let nextBeat = 0;
-
+        
         function updateBar() {
           if (state.on || state.isDead) return;
           const now = Date.now();
           const elapsed = now - startTime;
           const pct = Math.min((elapsed / duration) * 100, 100);
           els.resetBar.style.width = pct + '%';
-
+          
           // Rising Pitch Audio
           if(tensionOsc) {
               // Map percentage 0-100 to freq 100Hz-400Hz
-              const freq = 100 + (pct * 3);
+              const freq = 100 + (pct * 3); 
               tensionOsc.frequency.setValueAtTime(freq, audioCtx.currentTime);
           }
-
+          
           // Heartbeat Haptics logic
           const progress = elapsed / duration;
-          const beatInterval = 1000 - (progress * 800);
-
+          const beatInterval = 1000 - (progress * 800); 
+          
           if(now > nextBeat) {
-            vibrate(10 + (progress * 40));
+            vibrate(10 + (progress * 40)); 
             nextBeat = now + beatInterval;
           }
 
@@ -1051,12 +1070,13 @@
 
         // Random Blinks
         if(Math.random() > 0.7) {
-            setTimeout(triggerBlink, 500 + Math.random() * 1000);
+            let t = setTimeout(triggerBlink, 500 + Math.random() * 1000);
+            scareTimeouts.push(t);
         }
 
         // Big Eye
         if(level >= 1 && Math.random() > 0.6) {
-           setTimeout(() => {
+           let t = setTimeout(() => {
              if(state.on || state.isDead) return;
              els.bigEye.innerHTML = `<div class="forest-eyes-pair" style="top:50%; left:50%; transform:translate(-50%,-50%) scale(5);">
                  <div class="forest-eye evil-eye"><div class="forest-eye-pupil"></div></div>
@@ -1065,20 +1085,22 @@
              if(level === 3) vibrate(80);
              setTimeout(() => els.bigEye.innerHTML = '', 300);
            }, 1000 + Math.random() * 1500);
+           scareTimeouts.push(t);
         }
-
+        
         // Fake Notification
         if(level >= 2 && Math.random() > 0.75) {
-           setTimeout(() => {
+           let t = setTimeout(() => {
              if(state.on || state.isDead) return;
              const p = fakePopups[Math.floor(Math.random() * fakePopups.length)];
              els.fakeNotifTitle.textContent = p.title;
              els.fakeNotifText.textContent = p.text;
              els.fakeNotifBtn.textContent = p.btn;
-
+             
              els.fakeNotif.classList.add('show');
              vibrate(200);
            }, 1500 + Math.random()*1000);
+           scareTimeouts.push(t);
         }
       }
 
@@ -1091,22 +1113,22 @@
       // --- LOOP ---
       function handleOrientation(e) {
         if(e.gamma == null) return;
-        let rawBeta = e.beta;
+        let rawBeta = e.beta; 
         let rawGamma = e.gamma;
-        const centerBeta = 60;
-        let tiltX = (rawGamma) / 25;
-        let tiltY = (rawBeta - centerBeta) / 25;
+        const centerBeta = 60; 
+        let tiltX = (rawGamma) / 25; 
+        let tiltY = (rawBeta - centerBeta) / 25; 
         const x = Math.max(-1.5, Math.min(1.5, tiltX));
         const y = Math.max(-1.5, Math.min(1.5, tiltY));
         onInput(x, y);
       }
-
+      
       function onInput(x, y) {
         state.targetX = x; state.targetY = y;
-        state.lastMoveTime = Date.now();
+        state.lastMoveTime = Date.now(); 
         els.parallax.classList.remove('zooming');
       }
-
+      
       window.addEventListener('mousemove', e => {
         onInput((e.clientX / window.innerWidth - 0.5) * 2, (e.clientY / window.innerHeight - 0.5) * 2);
       });
@@ -1114,18 +1136,18 @@
       function loop() {
         state.currentX += (state.targetX - state.currentX) * 0.1;
         state.currentY += (state.targetY - state.currentY) * 0.1;
-
+        
         els.parallax.style.transform = `translate3d(${state.currentX * 20}px, ${state.currentY * 12}px, 0)`;
-
+        
         // Calculate breathing rhythm (sine wave)
         // 4000ms period
         const breath = (Math.sin(Date.now() / 650) + 1) * 0.5; // 0 to 1
-
+        
         if(!state.on) {
            // Modulate breathing gain rhythmically
            if(breathingGain) {
                // Base volume + breath impulse
-               const baseVol = 0.2;
+               const baseVol = 0.2; 
                // Pan follows head
                if(panner) panner.pan.value = Math.max(-1, Math.min(1, state.currentX));
                // Apply rhythmic gain (exhale louder)
@@ -1142,7 +1164,9 @@
              if(avg > 40) forceReset("NOISE");
            }
 
-           document.querySelectorAll('.forest-eye-pupil').forEach(p => {
+           // --- OPTIMIZED LOOP ---
+           // Use Cached pupils instead of querying DOM
+           cachedPupils.forEach(p => {
                p.style.transform = `translate(calc(-50% + ${state.currentX * 6}px), calc(-50% + ${state.currentY * 6}px))`;
            });
         }
